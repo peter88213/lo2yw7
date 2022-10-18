@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ oor:name="Addons" oor:package="org.openoffice.Office">
+   <node oor:name="AddonUI">
+
+      <node oor:name="OfficeHelp">
+         <node oor:name="org.peter88213.lo2yw7" oor:op="replace">
+            <prop oor:name="Context" oor:type="xs:string">
+               <value/>
+            </prop>
+            <prop oor:name="Title" oor:type="xs:string">
+               <value xml:lang="en">Export to yw7 Help</value>
+               <value xml:lang="de">Export zu yw7 Hilfe</value>
+            </prop>
+            <prop oor:name="URL" oor:type="xs:string">
+               <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+            </prop>
+            <prop oor:name="Target" oor:type="xs:string">
+               <value>_self</value>
+            </prop>
+         </node>
+      </node>
+
+      <node oor:name="OfficeMenuBarMerging">
+         <node oor:name="org.peter88213.lo2yw7" oor:op="replace">
+            <node oor:name="N001" oor:op="replace">
+               <prop oor:name="MergeContext" oor:type="xs:string">
+                  <value>com.sun.star.frame.StartModule,com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+               </prop>
+               <prop oor:name="MergePoint" oor:type="xs:string">
+                  <value>.uno:PickList\.uno:Save</value>
+               </prop>
+               <prop oor:name="MergeCommand" oor:type="xs:string">
+                  <value>AddBefore</value>
+               </prop>
+               <prop oor:name="MergeFallback" oor:type="xs:string">
+                  <value>Ignore</value>
+               </prop>
+               <node oor:name="MenuItems">
+                  <node oor:name="N002" oor:op="replace">
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>private:separator</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N003" oor:op="replace">
+                     <prop oor:name="Context" oor:type="xs:string">
+                        <value/>
+                     </prop>
+                     <prop oor:name="Title" oor:type="xs:string">
+                        <value xml:lang="en">Export to yWriter</value>
+                        <value xml:lang="de">Zu yWriter exportieren</value>
+                     </prop>
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     </prop>
+                     <prop oor:name="Target" oor:type="xs:string">
+                        <value>_self</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N004" oor:op="replace">
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>private:separator</value>
+                     </prop>
+                  </node>
+               </node>
+            </node>
+            <node oor:name="N005" oor:op="replace">
+               <prop oor:name="MergeContext" oor:type="xs:string">
+                  <value>com.sun.star.text.TextDocument</value>
+               </prop>
+               <prop oor:name="MergePoint" oor:type="xs:string">
+                  <value>.uno:FormatMenu\.uno:PageDialog</value>
+               </prop>
+               <prop oor:name="MergeCommand" oor:type="xs:string">
+                  <value>AddAfter</value>
+               </prop>
+               <prop oor:name="MergeFallback" oor:type="xs:string">
+                  <value>AddLast</value>
+               </prop>
+               <node oor:name="MenuItems">
+                  <node oor:name="N006" oor:op="replace">
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>private:separator</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N007" oor:op="replace">
+                     <prop oor:name="Context" oor:type="xs:string">
+                        <value/>
+                     </prop>
+                     <prop oor:name="Title" oor:type="xs:string">
+                        <value xml:lang="en">Replace scene dividers with blank lines</value>
+                        <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
+                     </prop>
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
+                     </prop>
+                     <prop oor:name="Target" oor:type="xs:string">
+                        <value>_self</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N008" oor:op="replace">
+                     <prop oor:name="Context" oor:type="xs:string">
+                        <value/>
+                     </prop>
+                     <prop oor:name="Title" oor:type="xs:string">
+                        <value xml:lang="en">Indent paragraphs that start with &apos;&gt; &apos;</value>
+                        <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
+                     </prop>
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
+                     </prop>
+                     <prop oor:name="Target" oor:type="xs:string">
+                        <value>_self</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N009" oor:op="replace">
+                     <prop oor:name="Context" oor:type="xs:string">
+                        <value/>
+                     </prop>
+                     <prop oor:name="Title" oor:type="xs:string">
+                        <value xml:lang="en">Replace list strokes with bullets</value>
+                        <value xml:lang="de">Aufzählungsstriche ersetzen</value>
+                     </prop>
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
+                     </prop>
+                     <prop oor:name="Target" oor:type="xs:string">
+                        <value>_self</value>
+                     </prop>
+                  </node>
+                  <node oor:name="N010" oor:op="replace">
+                     <prop oor:name="URL" oor:type="xs:string">
+                        <value>private:separator</value>
+                     </prop>
+                  </node>
+               </node>
+            </node>
+         </node>
+      </node>
+
+      <node oor:name="AddonMenu">
+         <node oor:name="org.peter88213.lo2yw7.N001" oor:op="replace">
+            <prop oor:name="Context" oor:type="xs:string">
+               <value/>
+            </prop>
+            <prop oor:name="Title" oor:type="xs:string">
+               <value>w7 Export</value>
+            </prop>
+            <node oor:name="Submenu">
+               <node oor:name="N002" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Export to yWriter</value>
+                     <value xml:lang="de">Zu yWriter exportieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N003" oor:op="replace">
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>private:separator</value>
+                  </prop>
+               </node>
+               <node oor:name="N004" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Help</value>
+                     <value xml:lang="de">Hilfe</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N005" oor:op="replace">
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>private:separator</value>
+                  </prop>
+               </node>
+               <node oor:name="N006" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Replace scene dividers with blank lines</value>
+                     <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N007" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Indent paragraphs that start with &apos;&gt; &apos;</value>
+                     <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N008" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Replace list strokes with bullets</value>
+                     <value xml:lang="de">Aufzählungsstriche ersetzen</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+            </node>
+         </node>
+      </node>
+
+   </node>
+</oor:component-data>

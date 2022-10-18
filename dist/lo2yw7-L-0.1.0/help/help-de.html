@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+    <meta charset="utf-8" />
+    <title>yWriter Import/Export Hilfe</title>
+    <style type='text/css'>
+    <!--
+    body {padding: 1em;}
+    h1, h2, h3 {font-family: sans-serif;}
+    h1, h2 {color: green;}
+    h3 {font-style: italic; font-size: 1em;}
+    em, code {color: maroon;}
+    li {margin-top: 0.5em;}
+    -->
+    </style>
+</head>
+<body>
+<p><a href="https://peter88213.github.io/yw-cnv/">Projekt-Homepage</a> &gt; Haupt-Hilfeseite</p>
+<hr />
+<h1 id="ywriter-importexport">yWriter Import/Export</h1>
+<h2 id="befehlsreferenz">Befehlsreferenz</h2>
+<h3 id="datei-menü">"Datei"-Menü</h3>
+<ul>
+<li><a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a></li>
+<li><a href="#von-ywriter-importieren">Von yWriter importieren</a></li>
+<li><a href="#von-ywriter-zum-korrekturlesen-importieren">Von yWriter zum Korrekturlesen importieren</a></li>
+<li><a href="#kurze-zusammenfassung">Kurze Zusammenfassung</a></li>
+<li><a href="#figurenliste">Figurenliste</a></li>
+<li><a href="#schauplatzliste">Schauplatzliste</a></li>
+<li><a href="#gegenstandsliste">Gegenstandsliste</a></li>
+<li><a href="#querverweise">Querverweise</a></li>
+<li><a href="help-adv-de.html">Für Fortgeschrittene</a></li>
+</ul>
+<h3 id="format-menü">"Format"-Menü</h3>
+<ul>
+<li><a href="#szenentrenner-durch-leerzeilen-ersetzen">Szenentrenner durch Leerzeilen ersetzen</a></li>
+<li><a href="#absätze-einrücken-die-mit-beginnen">Absätze einrücken, die mit '&gt; ' beginnen'</a></li>
+<li><a href="#aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</a></li>
+</ul>
+<hr />
+<h2 id="allgemeines">Allgemeines</h2>
+<h3 id="zur-textformatierung">Zur Textformatierung</h3>
+<p>Es wird davon ausgegangen, dass für einen fiktionalen Text nur sehr wenige Arten von Textauszeichnungen erforderlich sind:</p>
+<ul>
+<li><em>Betont</em> (üblicherweise in Kursivschrift dargestellt).</li>
+<li><em>Stark betont</em> (üblicherweise in Großbuchstaben dargestellt).</li>
+<li><em>Zitat</em> (Absatz optisch vom Fließtext unterschieden).</li>
+</ul>
+<p>Beim Importieren aus dem yw7-Format ersetzt der Konverter diese Formatierungen wie folgt:</p>
+<ul>
+<li>In yWriter <em>kursiv</em> gesetzter Text wird als <em>Betont</em> formatiert.</li>
+<li>In yWriter <em>fett</em> gesetzter Text wird als <em>Stark betont</em> formatiert.</li>
+<li>Absätze, die in yWriter mit <code>"&gt; "</code> beginnen, werden als <em>Zitat</em> formatiert.</li>
+</ul>
+<p>Beim Exportieren in das yw7-Format gilt das Umgekehrte.</p>
+<h3 id="zur-sprache-des-dokuments">Zur Sprache des Dokuments</h3>
+<p>ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschreibprüfung und länderspezifische Zeichenersetzungen bestimmt. Außerdem kann man in Office Writer Textpassagen von der Dokumentsprache abweichende Sprachen zuordnen, um Fremdsprachengebrauch zu markieren oder die Rechtschreibprüfung auszusetzen.</p>
+<h4 id="dokument-insgesamt">Dokument insgesamt</h4>
+<ul>
+<li><p>Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yWriter-Projektvariablen eingetragen.</p></li>
+<li><p>Wenn bei der Konvertierung aus dem yw7-Format Sprach- und Ländercode als Projektvariablen existieren, werden sie ins erzeugte ODF-Dokument eingetragen.</p></li>
+<li><p>Wenn bei der Konvertierung aus dem yw7-Format keine Sprach- und Ländercode als Projektvariablen existieren, werden Sprach- und Ländercode aus den Betriebssystemeinstellungen ins erzeugte ODF-Dokument eingetragen.</p></li>
+<li><p>Die Sprach- und Ländercodes werden oberflächlich geprüft. Wenn sie offensichtlich nicht den ISO-Standards entsprechen, werden sie durch die Werte für "Keine Sprache" ersetzt. Das sind:</p>
+<ul>
+<li>Language = zxx</li>
+<li>Country = none</li>
+</ul></li>
+</ul>
+<h4 id="textpassagen-in-szenen">Textpassagen in Szenen</h4>
+<p>Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yWriter-Szene übernommen.</p>
+<p>Das sieht dann beispielsweise so aus:</p>
+<p><code>xxx xxxx [lang=de-CH]yyy yyyy yyyy[/lang=de-CH] xxx xxx</code></p>
+<p>Damit diese Textauszeichnungen in <em>yWriter</em> nicht stören, werden sie automatisch als Projektvariablen eingetragen, und zwar so, dass <em>yWriter</em> sie beim Dokumentenexport als HTML-Anweisungen interpretiert.</p>
+<p>Für das oben gezeigte Beispiel sieht die Projektvariablen-Definition für das öffnende Tag so aus:</p>
+<ul>
+<li><em>Variable Name:</em> <code>lang=de-CH</code></li>
+<li><em>Value/Text:</em> <code>&lt;HTM &lt;SPAN LANG="de-CH"&gt; /HTM&gt;</code></li>
+</ul>
+<p>Der Sinn der Sache liegt darin, dass solche Sprachenzuweisungen auch bei mehrmaligem Konvertieren in beide Richtungen erhalten bleiben, also im ODT-Dokument immer für die Rechtschreibprüfung wirksam sind.</p>
+<p>Es wird empfohlen, solche Auszeichnungen nicht in yWriter zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden.</p>
+<h2 id="so-wirds-gemacht">So wird's gemacht</h2>
+<h2 id="ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</h2>
+<p>Ein in Arbeit befindliches Dokument hat keine Überschrift auf der dritten Ebene.</p>
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
+<li><em>Überschrift 2</em> → Neuer Kapiteltitel.</li>
+<li><code>* * *</code> → Szenentrenner (nicht erforderlich für die ersten Szenen eines Kapitels).</li>
+<li>Kommentare direkt am Anfang einer Szene gelten als Szenentitel.</li>
+<li>Alle anderen Texte gelten als Szeneninhalt.</li>
+</ul>
+<h2 id="eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</h2>
+<p>Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.</p>
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
+<li><em>Überschrift 2</em> → Neue Kapitelüberschrift.</li>
+<li><em>Überschrift 3</em> → Neuer Szenentitel.</li>
+<li>Alle anderen Texte werden als Kapitel-/Szenenbeschreibung betrachtet.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="zu-ywriter-exportieren">Zu yWriter exportieren</h2>
+<p>Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschrieben.</p>
+<ul>
+<li>Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yWriter-Formanicht ändern.</li>
+<li>Das zu überschreibende yWriter 7 Projekt muss sich im selben Ordner befinden wie das Dokument.</li>
+<li>Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als <a href="#ein-manuskript-zum-export-vorbereiten">Manuskript in Arbeit</a> oder eine <a href="#eine-gliederung-zum-export-vorbereiten">Gliederung</a> zum Exportieren in ein neu zu erstellendes yWriter-Projekt. <strong>Hinweis:</strong> Bestehende yWriter-Projekte werden nicht überschrieben.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="von-ywriter-importieren">Von yWriter importieren</h2>
+<p>Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (odt) importiert.</p>
+<ul>
+<li>Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.</li>
+<li>Der <strong>Dateiname</strong> des Dokuments: <code>&lt;yW-Projektname&gt;.odt</code>.</li>
+<li>Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.</li>
+<li>Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
+<li>Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.</li>
+<li>Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
+<li>Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. <code>/* das ist ein Kommentar */</code>), werden in Autorenkommentare umgewandelt.</li>
+<li>Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.</li>
+<li>Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.</li>
+<li>Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.</li>
+<li>Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.</li>
+<li>Szenentitel erscheinen als navigierbare Kommentare, die an den Anfang der Szene gepinnt sind.</li>
+<li>Szenen werden durch <code>* * *</code> getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl <strong>Format &gt; Szenentrenner durch Leerzeilen ersetzen</strong> können Sie die Szenentrenner durch Leerzeilen ersetzen.</li>
+<li>Ab dem zweiten Absatz beginnen Absätze mit der Einrückung der ersten Zeile.</li>
+<li>Szenen, die in yWriter mit "an vorherige Szene anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.</li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="von-ywriter-zum-korrekturlesen-importieren">Von yWriter zum Korrekturlesen importieren</h2>
+<p>Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit Kapitel- und Szenenmarkierungen. Das Suffix des Dateinamens ist <code>_proof</code>.</p>
+<ul>
+<li>Das Probedokument wird im selben Ordner wie das yWriter-Projekt abgelegt.</li>
+<li>Der Dateiname des Dokuments: <code>&lt;yW Projektname&gt;_proof.odt</code>.</li>
+<li>Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.</li>
+<li>Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
+<li>Alle anderen Kapitel und Szenen werden importiert, egal ob "benutzt" oder "unbenutzt".</li>
+<li>Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.</li>
+<li>Das Dokument enthält Kapitel <code>[ChID:x]</code> und Szenen <code>[ScID:y]</code> Markierungen entsprechend dem yWriter 5 Standard. <strong>Ändern Sie die Zeilen mit den Markierungen nicht</strong>, wenn Sie das Dokument wieder in yWriter importieren wollen.</li>
+<li>Kapitel und Szenen können weder umgeordnet noch gelöscht werden.</li>
+<li>Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
+<li><em>Überschrift 2</em> → Neuer Kapiteltitel.</li>
+<li><code>###</code> → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen.</li>
+</ul></li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+</ul>
+<p>Sie können den Inhalt der Szene mit dem Befehl <a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a> in die yWriter 7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="kurze-zusammenfassung">Kurze Zusammenfassung</h2>
+<p>Dies lädt eine kurze Zusammenfassung mit Kapitel- und Szenenüberschriften in ein neues OpenDocument-Textdokument (odt).</p>
+<ul>
+<li>Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.</li>
+<li>Der <strong>Dateiname</strong> des Dokuments: <code>&lt;yW-Projektname_brf_synopsis&gt;.odt</code>.</li>
+<li>Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
+<li>Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.</li>
+<li>Titel von Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
+<li>Kapitelüberschriften erscheinen als Überschrift der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.</li>
+<li>Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.</li>
+<li>Szenentitel erscheinen als einfache Absätze.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="figurenliste">Figurenliste</h2>
+<p>Damit wird ein neues OpenDocument Tabellenblatt (ods) erzeugt, das eine Figurenliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist <code>_charlist</code>.</p>
+<p>Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.</p>
+<p>Sie können die bearbeitete Tabelle mit dem Befehl <a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a> in die yWriter 7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="schauplatzliste">Schauplatzliste</h2>
+<p>Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das eine Schauplatzliste enthält, die in Office Calc bearbeitet und in das yWriter Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist <code>_loclist</code>.</p>
+<p>Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.</p>
+<p>Sie können die bearbeitete Tabelle mit dem Befehl <a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a> in die yWriter 7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="gegenstandsliste">Gegenstandsliste</h2>
+<p>Dies erzeugt ein neues OpenDocument Spreadsheet (ods), das eine Gegenstandsliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist <code>_itemlist</code>.</p>
+<p>Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.</p>
+<p>Sie können die bearbeitete Tabelle mit dem Befehl <a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a> in die yWriter 7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="querverweise">Querverweise</h2>
+<p>Dadurch wird ein neues OpenDocument-Textdokument (odt) erzeugt, das navigierbare Querverweise enthält. Das Suffix des Dateinamens ist <code>_xref</code>. Die Querverweise sind:</p>
+<ul>
+<li>Szenen pro Figur,</li>
+<li>Szenen pro Schauplatz,</li>
+<li>Szenen pro Gegenstand,</li>
+<li>Szenen pro Tag,</li>
+<li>Figuren pro Tag,</li>
+<li>Schauplätze pro Tag,</li>
+<li>Gegenstände pro Tag.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="szenentrenner-durch-leerzeilen-ersetzen">Szenentrenner durch Leerzeilen ersetzen</h2>
+<p>Dadurch werden die dreizeiligen "* * *"-Szenentrennlinien durch einzelne Leerzeilen ersetzt. Der Stil der szenenunterteilenden Zeilen wird von <em>Überschrift 4</em> auf <em>Überschrift 5</em> geändert.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="absätze-einrücken-die-mit-beginnen">Absätze einrücken, die mit '&gt;' beginnen'</h2>
+<p>Dadurch werden alle Absätze ausgewählt, die mit "&gt; " beginnen, und ihr Absatzstil wird in <em>Quotations</em> geändert.</p>
+<p>Hinweis: Beim Export in yWriter werden Absätze im Stil <em>Quotations</em> automatisch mit "&gt; " am Anfang markiert.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</h2>
+<p>Dadurch werden alle Absätze, die mit "-" beginnen, ausgewählt und mit einem Listenabsatzstil versehen.</p>
+<p>Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen markiert.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+</body>
+</html>

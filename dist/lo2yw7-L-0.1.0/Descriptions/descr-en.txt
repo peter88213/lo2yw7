@@ -1,0 +1,3 @@
+Export to a yw7 project.
+- Export rewritable documents generated from yw7.
+- Generate a new yw7 file from a work in progress or an outline.

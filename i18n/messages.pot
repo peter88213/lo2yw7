@@ -1,0 +1,135 @@
+# lo2yw7 Dictionary
+# Copyright (C) 2022 Peter Triesberger
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1.0\n"
+"POT-Creation-Date: 2022-10-18 16:58:39\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: PyWriter pgettext.py 0.3\n"
+
+
+msgid "Action canceled by user"
+msgstr ""
+
+msgid "Can not process file"
+msgstr ""
+
+msgid "Cannot overwrite file"
+msgstr ""
+
+msgid "Cannot parse File"
+msgstr ""
+
+msgid "Cannot write file"
+msgstr ""
+
+msgid "Chapter descriptions"
+msgstr ""
+
+msgid "Character descriptions"
+msgstr ""
+
+msgid "Character list"
+msgstr ""
+
+msgid "Create a yWriter project file from {0}\nNew project: \"{1}\""
+msgstr ""
+
+msgid "Editable manuscript"
+msgstr ""
+
+msgid "Export to yw7"
+msgstr ""
+
+msgid "Export type is not supported"
+msgstr ""
+
+msgid "File already exists"
+msgstr ""
+
+msgid "File not found"
+msgstr ""
+
+msgid "File type is not supported"
+msgstr ""
+
+msgid "File written"
+msgstr ""
+
+msgid "Input: {0} \"{1}\"\nOutput: {2} \"{3}\""
+msgstr ""
+
+msgid "Item descriptions"
+msgstr ""
+
+msgid "Item list"
+msgstr ""
+
+msgid "Location descriptions"
+msgstr ""
+
+msgid "Location list"
+msgstr ""
+
+msgid "New Chapter"
+msgstr ""
+
+msgid "New Part"
+msgstr ""
+
+msgid "New Scene"
+msgstr ""
+
+msgid "New scenes created during conversion."
+msgstr ""
+
+msgid "No yWriter project to write"
+msgstr ""
+
+msgid "Notes chapters"
+msgstr ""
+
+msgid "Novel"
+msgstr ""
+
+msgid "Novel outline"
+msgstr ""
+
+msgid "Overwrite existing file \"{}\"?"
+msgstr ""
+
+msgid "Part descriptions"
+msgstr ""
+
+msgid "Scene descriptions"
+msgstr ""
+
+msgid "Scene list"
+msgstr ""
+
+msgid "Tagged manuscript for proofing"
+msgstr ""
+
+msgid "This document is not meant to be written back"
+msgstr ""
+
+msgid "Todo chapters"
+msgstr ""
+
+msgid "Work in progress"
+msgstr ""
+
+msgid "Wrong csv structure"
+msgstr ""
+
+msgid "yWriter 7 project"
+msgstr ""
+
+msgid "yWriter seems to be open. Please close first"
+msgstr ""

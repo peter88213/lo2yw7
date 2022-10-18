@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lo2yw7" basedir=".">
+	<property name="version" value="0.1.0" />
+	<property name="test-app" value="lo2yw7" />
+	
+	<property name="application" value="${ant.project.name}" />
+	<property name="release" value="${application}-${version}" />
+	<property name="release-L" value="${application}-L-${version}" />
+	<property name="release-A" value="${application}-A-${version}" />
+	
+	<property name="oxt-path" location="../oxt" />
+	<property name="docs-path" location="../docs" />
+	<property name="source-path" location="../src" />
+	<property name="test-path" location="../test" />
+	<property name="dist-path" location="../dist" />
+	<property name="build-path" location="../build" />
+	<property name="i18n-path" location="../i18n" />
+
+	<target name="build" description="inline all library modules">
+		<delete file="${test-path}/${test-app}.pyw" />
+		<exec executable="python" failonerror="true">
+		    <arg value="${source-path}/make_pot.py"/>
+		    <arg value="${version}"/>
+		</exec>
+		<exec executable="python" failonerror="true">
+		    <arg value="${source-path}/translate_de.py"/>
+		    <arg value="${version}"/>
+		</exec>
+	</target>
+
+	<target name="dist" description="Generate the extension">		
+		<delete dir="${dist-path}" />
+		<mkdir dir="${dist-path}" />
+
+		<!-- Generate the LibreOffice distribution -->
+		
+		<mkdir dir="${dist-path}/${release-L}" />
+		<mkdir dir="${dist-path}/${release-L}/${application}" />
+
+		<mkdir dir="${dist-path}/${release-L}/help" />
+		
+        <!-- Build the html help files -->
+        
+        <mkdir dir="${build-path}" />
+		
+		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${build-path}" />
+		<replace encoding="utf-8" file="${build-path}/help.md" token="@help-adv@" value="help-adv.html" />
+		
+		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${build-path}" />
+		<replace encoding="utf-8" file="${build-path}/help-adv.md" token="@help@" value="help.html" />
+		
+		<exec executable="cmd">
+			<arg value="/c"/>
+			<arg value="pandoc -o ${dist-path}/${release-L}/help/help.html -fMarkdown-smart --template ${docs-path}/template/template.html ${build-path}/help.md"/>
+		</exec>	
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
+		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help.html" />
+		
+		<exec executable="cmd">
+			<arg value="/c"/>
+			<arg value="pandoc -o ${dist-path}/${release-L}/help/help-adv.html -fMarkdown-smart --template ${docs-path}/template/template.html ${build-path}/help-adv.md"/>
+		</exec>
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help-adv.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
+		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help-adv.html" />
+		
+		<delete file="./help/help.md" />
+		<delete file="./help/help-adv.md" />
+		<delete file="./help/body.html" />
+		
+		<copy todir="${dist-path}/${release-L}/help"> 
+			<fileset dir="${i18n-path}/help/html" />
+		</copy>
+		
+        <!-- ODF components -->
+        
+		<copy todir="${dist-path}/${release-L}/META-INF"> 
+			<fileset dir="${oxt-path}/META-INF" />
+		</copy>
+		
+		<copy todir="${dist-path}/${release-L}/Descriptions"> 
+			<fileset dir="${oxt-path}/Descriptions" />
+		</copy>
+		
+		<copy todir="${dist-path}/${release-L}/Legal"> 
+			<fileset dir="${oxt-path}/Legal" />
+		</copy>
+		
+		<copy todir="${dist-path}/${release-L}/Tooltips"> 
+			<fileset dir="${oxt-path}/Tooltips" />
+		</copy>
+		
+		<copy file="${source-path}/help.py" todir="${dist-path}/${release-L}/help" />
+
+		<copy file="${test-path}/${test-app}.py" todir="${dist-path}/${release-L}/${application}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/${application}/${test-app}.py" token="@release" value="${version}" />
+
+		<copy todir="${dist-path}/${release-L}/${application}/locale"> 
+			<fileset dir="${i18n-path}/locale" />
+		</copy>
+		
+		<copy file="${oxt-path}/AddonUI.xcu" todir="${dist-path}/${release-L}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/AddonUI.xcu" token="0.99.0" value="${version}" />
+
+		<copy file="${oxt-path}/description.xml" todir="${dist-path}/${release-L}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/description.xml" token="0.99.0" value="${version}" />
+
+		<!-- copy file="../README.md" todir="${dist-path}/${release-L}" /-->
+
+		<zip destfile="${dist-path}/${release-L}.oxt" basedir="${dist-path}/${release-L}" />
+
+		<copy file="./${application}-L.update.xml" overwrite="True" todir=".." />
+		<replace encoding="utf-8" file="../${application}-L.update.xml" token="0.99.0" value="${version}" />
+
+		<copy file="${docs-path}/template/index.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/index.md" token="0.99.0" value="${version}" />
+
+		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/help.md" token="@help-adv@" value="help-adv" />
+		
+		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/help-adv.md" token="@help@" value="help" />		
+	</target>
+
+	<target name="clean" description="clean up">		
+		<delete file="${test-path}/${test-app}.py" />
+		<delete dir="${build-path}" />
+	</target>
+	
+</project>

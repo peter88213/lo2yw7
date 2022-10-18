@@ -1,0 +1,5 @@
+In ein yw7-Projekt exportieren:
+- Zurückschreibbare Dokumente exportieren, die aus yw7 generiert wurden.
+- Eine neue yw7-Datei aus einem Text (work in progress) oder einer Dokumentenstruktur (outline) erzeugen.
+
+
