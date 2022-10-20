@@ -25,7 +25,7 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 ## Download and install {#download}
 
-[Download the latest release (version 0.1.0)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-0.1.0.oxt)
+[Download the latest release (version 0.2.0)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-0.2.0.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).
