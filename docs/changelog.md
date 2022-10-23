@@ -6,7 +6,7 @@
 
 ### v0.2.1
 
-- Fix a bug in HTML parsers, where the language setting is not recognized if applied to the whole paragraph. 
+- Fix a bug in document export, where the language setting is not recognized if applied to the whole paragraph. 
 
 Based on PyWriter v7.14.1
 
