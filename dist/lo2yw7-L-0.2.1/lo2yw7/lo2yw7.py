@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.2.0
+Version 0.2.1
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -3701,6 +3701,14 @@ class HtmlImport(HtmlFormatted):
                 self.chapters[self._chId].srtScenes.append(self._scId)
                 self.scenes[self._scId].status = '1'
                 self.scenes[self._scId].title = f'Scene {self._scCount}'
+            try:
+                if attrs[0][0] == 'lang':
+                    self._language = attrs[0][1]
+                    if not self._language in self.languages:
+                        self.languages.append(self._language)
+                    self._lines.append(f'[lang={self._language}]')
+            except:
+                pass
         elif tag == 'br':
             self._newline = True
         elif tag == 'em' or tag == 'i':
@@ -3708,7 +3716,7 @@ class HtmlImport(HtmlFormatted):
         elif tag == 'strong' or tag == 'b':
             self._lines.append('[b]')
         elif tag == 'span':
-            if attrs[0][0].lower() == 'lang':
+            if attrs[0][0] == 'lang':
                 self._language = attrs[0][1]
                 if not self._language in self.languages:
                     self.languages.append(self._language)
@@ -3738,7 +3746,7 @@ class HtmlImport(HtmlFormatted):
             self._lines = []
         elif tag == 'body':
             for attr in attrs:
-                if attr[0].lower() == 'lang':
+                if attr[0] == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
                         self.languageCode = lngCode
@@ -3752,6 +3760,14 @@ class HtmlImport(HtmlFormatted):
                 self._doNothing = True
         elif tag == 'blockquote':
             self._lines.append(f'{self._INDENT} ')
+            try:
+                if attrs[0][0] == 'lang':
+                    self._language = attrs[0][1]
+                    if not self._language in self.languages:
+                        self.languages.append(self._language)
+                    self._lines.append(f'[lang={self._language}]')
+            except:
+                pass
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.
@@ -3762,6 +3778,9 @@ class HtmlImport(HtmlFormatted):
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
         if tag in ('p', 'blockquote'):
+            if self._language:
+                self._lines.append(f'[/lang={self._language}]')
+                self._language = ''
             self._lines.append('\n')
             self._newline = True
             if self._scId is not None:
@@ -4019,12 +4038,15 @@ class HtmlProof(HtmlFormatted):
             self._lines.append('[i]')
         elif tag == 'strong' or tag == 'b':
             self._lines.append('[b]')
-        elif tag == 'span':
-            if attrs[0][0].lower() == 'lang':
-                self._language = attrs[0][1]
-                if not self._language in self.languages:
-                    self.languages.append(self._language)
-                self._lines.append(f'[lang={self._language}]')
+        elif tag in ('span', 'p'):
+            try:
+                if attrs[0][0] == 'lang':
+                    self._language = attrs[0][1]
+                    if not self._language in self.languages:
+                        self.languages.append(self._language)
+                    self._lines.append(f'[lang={self._language}]')
+            except:
+                pass
         elif tag == 'h2':
             self._lines.append(f'{Splitter.CHAPTER_SEPARATOR} ')
         elif tag == 'h1':
@@ -4033,9 +4055,17 @@ class HtmlProof(HtmlFormatted):
             self._lines.append(f'{self._BULLET} ')
         elif tag == 'blockquote':
             self._lines.append(f'{self._INDENT} ')
+            try:
+                if attrs[0][0] == 'lang':
+                    self._language = attrs[0][1]
+                    if not self._language in self.languages:
+                        self.languages.append(self._language)
+                    self._lines.append(f'[lang={self._language}]')
+            except:
+                pass
         elif tag == 'body':
             for attr in attrs:
-                if attr[0].lower() == 'lang':
+                if attr[0] == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
                         self.languageCode = lngCode
@@ -4056,6 +4086,9 @@ class HtmlProof(HtmlFormatted):
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
         if tag in ['p', 'h2', 'h1', 'blockquote']:
+            if self._language:
+                self._lines.append(f'[/lang={self._language}]')
+                self._language = ''
             self._newline = True
         elif tag == 'em' or tag == 'i':
             self._lines.append('[/i]')
@@ -4122,12 +4155,15 @@ class HtmlManuscript(HtmlFormatted):
                 self._lines.append('[i]')
             elif tag == 'strong' or tag == 'b':
                 self._lines.append('[b]')
-            elif tag == 'span':
-                if attrs[0][0].lower() == 'lang':
-                    self._language = attrs[0][1]
-                    if not self._language in self.languages:
-                        self.languages.append(self._language)
-                    self._lines.append(f'[lang={self._language}]')
+            elif tag in ('span', 'p'):
+                try:
+                    if attrs[0][0] == 'lang':
+                        self._language = attrs[0][1]
+                        if not self._language in self.languages:
+                            self.languages.append(self._language)
+                        self._lines.append(f'[lang={self._language}]')
+                except:
+                    pass
             elif tag == 'h3':
                 if self.scenes[self._scId].title is None:
                     self._getScTitle = True
@@ -4141,9 +4177,17 @@ class HtmlManuscript(HtmlFormatted):
                 self._lines.append(f'{self._BULLET} ')
             elif tag == 'blockquote':
                 self._lines.append(f'{self._INDENT} ')
+                try:
+                    if attrs[0][0] == 'lang':
+                        self._language = attrs[0][1]
+                        if not self._language in self.languages:
+                            self.languages.append(self._language)
+                        self._lines.append(f'[lang={self._language}]')
+                except:
+                    pass
         elif tag == 'body':
             for attr in attrs:
-                if attr[0].lower() == 'lang':
+                if attr[0] == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
                         self.languageCode = lngCode
@@ -4161,7 +4205,10 @@ class HtmlManuscript(HtmlFormatted):
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
         if self._scId is not None:
-            if tag == 'p':
+            if tag in ('p', 'blockquote'):
+                if self._language:
+                    self._lines.append(f'[/lang={self._language}]')
+                    self._language = ''
                 self._lines.append('\n')
             elif tag == 'em' or tag == 'i':
                 self._lines.append('[/i]')
@@ -4181,8 +4228,6 @@ class HtmlManuscript(HtmlFormatted):
             elif tag == 'h2':
                 self._lines.append('\n')
             elif tag == 'h3' and not self._getScTitle:
-                self._lines.append('\n')
-            elif tag == 'blockquote':
                 self._lines.append('\n')
         elif self._chId is not None:
             if tag == 'div':
