@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v0.2.2
+
+- Fix locale and help paths under Linux.
+
+Based on PyWriter v7.14.1
+
 ### v0.2.1
 
 - Fix a bug in document export, where the language setting is not recognized if applied to the whole paragraph. 

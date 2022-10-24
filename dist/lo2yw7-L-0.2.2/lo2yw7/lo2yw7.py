@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.2.1
+Version 0.2.2
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -67,10 +67,9 @@ __all__ = ['ERROR', '_',
            ]
 
 #--- Initialize localization.
-from urllib import parse
 oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.lo2yw7")
-packagePath = parse.unquote(sPackageLocation).replace('file:///', '')
+packagePath = uno.fileUrlToSystemPath(sPackageLocation)
 LOCALE_PATH = f'{packagePath}/lo2yw7/locale/'
 CURRENT_LANGUAGE = locale.getdefaultlocale()[0][:2]
 try:
