@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="lo2yw7" basedir=".">
-	<property name="version" value="0.2.2" />
+	<property name="version" value="0.2.3" />
 	<property name="test-app" value="lo2yw7" />
 	
 	<property name="application" value="${ant.project.name}" />
@@ -44,10 +44,6 @@
         <mkdir dir="${build-path}" />
 		
 		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${build-path}" />
-		<replace encoding="utf-8" file="${build-path}/help.md" token="@help-adv@" value="help-adv.html" />
-		
-		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${build-path}" />
-		<replace encoding="utf-8" file="${build-path}/help-adv.md" token="@help@" value="help.html" />
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
@@ -56,15 +52,7 @@
 		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
 		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help.html" />
 		
-		<exec executable="cmd">
-			<arg value="/c"/>
-			<arg value="pandoc -o ${dist-path}/${release-L}/help/help-adv.html -fMarkdown-smart --template ${docs-path}/template/template.html ${build-path}/help-adv.md"/>
-		</exec>
-		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help-adv.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
-		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help-adv.html" />
-		
 		<delete file="./help/help.md" />
-		<delete file="./help/help-adv.md" />
 		<delete file="./help/body.html" />
 		
 		<copy todir="${dist-path}/${release-L}/help"> 
@@ -117,8 +105,6 @@
 		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${docs-path}" />
 		<replace encoding="utf-8" file="${docs-path}/help.md" token="@help-adv@" value="help-adv" />
 		
-		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${docs-path}" />
-		<replace encoding="utf-8" file="${docs-path}/help-adv.md" token="@help@" value="help" />		
 	</target>
 
 	<target name="clean" description="clean up">		

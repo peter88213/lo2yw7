@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v0.2.3
+
+- Update help.
+
+Based on PyWriter v7.14.1
+
 ### v0.2.2
 
 - Fix locale and help paths under Linux.

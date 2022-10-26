@@ -27,7 +27,3 @@ def open_helppage(name):
 
 def show_help():
     open_helppage('help')
-
-
-def show_adv_help():
-    open_helppage('help-adv')

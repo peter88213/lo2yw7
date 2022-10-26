@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+    <meta charset="utf-8" />
+    <title>yWriter import/export help</title>
+    <style type='text/css'>
+    <!--
+    body {padding: 1em;}
+    h1, h2, h3 {font-family: sans-serif;}
+    h1, h2 {color: green;}
+    h3 {font-style: italic; font-size: 1em;}
+    em, code {color: maroon;}
+    li {margin-top: 0.5em;}
+    -->
+    </style>
+</head>
+<body>
+<p><a href="https://peter88213.github.io/lo2yw7/">Project home page</a> &gt; Main help page</p>
+<hr />
+<h1 id="export-to-yw7">Export to yw7</h1>
+<h2 id="command-reference">Command reference</h2>
+<h3 id="files-menu">"Files" menu</h3>
+<ul>
+<li><a href="#export-to-ywriter">Export to yWriter</a></li>
+</ul>
+<h3 id="format-menu">"Format" menu</h3>
+<ul>
+<li><a href="#replace-scene-dividers-with-blank-lines">Replace scene dividers with blank lines</a></li>
+<li><a href="#indent-paragraphs-that-start-with">Indent paragraphs that start with '&gt; '</a></li>
+<li><a href="#replace-list-strokes-with-bullets">Replace list strokes with bullets</a></li>
+</ul>
+<hr />
+<h2 id="general">General</h2>
+<h3 id="about-formatting-text">About formatting text</h3>
+<p>It is assumed that very few types of text markup are needed for a fictional text:</p>
+<ul>
+<li><em>Emphasized</em> (usually shown as italics).</li>
+<li><em>Strongly emphasized</em> (usually shown as capitalized).</li>
+<li><em>Citation</em> (paragraph visually distinguished from body text).</li>
+</ul>
+<p>When exporting to yw7 format, the converter replaces these formattings as follows:</p>
+<ul>
+<li><em>Emphasized</em> is converted to <em>italics</em>.</li>
+<li><em>Strongly emphasized</em> is converted to <em>bold</em>.</li>
+<li><em>Quotations</em> paragraphs are prefixed with <code>"&gt; "</code>.</li>
+</ul>
+<h3 id="about-document-language-handling">About document language handling</h3>
+<p>ODF documents are generally assigned a language that determines spell checking and country-specific character substitutions. In addition, Office Writer lets you assign text passages to languages other than the document language to mark foreign language usage or to suspend spell checking.</p>
+<h4 id="document-overall">Document overall</h4>
+<ul>
+<li>If a document language (Language code acc. to ISO 639-1 and country code acc. to ISO 3166-2) is detected in the source document during conversion to yw7 format, these codes are set as yWriter project variables.</li>
+</ul>
+<h4 id="text-passages-in-scenes">Text passages in scenes</h4>
+<p>If text markups for other languages are detected during conversion to the yw7 format, they are converted and transferred to the yWriter scene.</p>
+<p>This then looks like this, for example:</p>
+<p><code>xxx xxxx [lang=en-AU]yyy yyyy yyyy[/lang=en-AU] xxx xxx</code></p>
+<p>To prevent these text markups from interfering with <em>yWriter</em>, they are automatically set as project variables in such a way that <em>yWriter</em> interprets them as HTML instructions during document export.</p>
+<p>For the example shown above, the project variable definition for the opening tag looks like this:</p>
+<ul>
+<li><em>Variable Name:</em> <code>lang=en-AU</code></li>
+<li><em>Value/Text:</em> <code>&lt;HTM &lt;SPAN LANG="en-AU"&gt; /HTM&gt;</code></li>
+</ul>
+<p>The point of this is that such language assignments are preserved even after multiple conversions in both directions, so they are always effective for spell checking in the ODT document.</p>
+<p>It is recommended not to modify such markups in yWriter to avoid unwanted nesting and broken enclosing.</p>
+<h2 id="howto">HowTo</h2>
+<h2 id="how-to-set-up-a-work-in-progress-for-export">How to set up a work in progress for export</h2>
+<p>A work in progress has no third level heading.</p>
+<ul>
+<li><em>Heading 1</em> → New chapter title (beginning a new section).</li>
+<li><em>Heading 2</em> → New chapter title.</li>
+<li><code>* * *</code> → Scene divider (not needed for the first scenes in a chapter).</li>
+<li>Comments right at the scene beginning are considered scene titles.</li>
+<li>All other text is considered scene content.</li>
+</ul>
+<h2 id="how-to-set-up-an-outline-for-export">How to set up an outline for export</h2>
+<p>An outline has at least one third level heading.</p>
+<ul>
+<li><em>Heading 1</em> → New chapter title (beginning a new section).</li>
+<li><em>Heading 2</em> → New chapter title.</li>
+<li><em>Heading 3</em> → New scene title.</li>
+<li>All other text is considered to be chapter/scene description.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="export-to-ywriter">Export to yWriter</h2>
+<p>This writes back the document's content to the yWriter project file.</p>
+<ul>
+<li>Make sure not to change a generated document's file name before writing back to yWriter format.</li>
+<li>The yWriter 7 project to rewrite must exist in the same folder as the document.</li>
+<li>If the document's file name has no suffix, the document is considered a <a href="#how-to-set-up-a-work-in-progress-for-export">Work in progress</a> or an <a href="#how-to-set-up-an-outline-for-export">Outline</a> to be exported into a newly created yWriter project. <strong>Note:</strong> Existing yWriter projects will not be overwritten.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="replace-scene-dividers-with-blank-lines">Replace scene dividers with blank lines</h2>
+<p>This will replace the three-line "* * *" scene dividers with single blank lines. The style of the scene-dividing lines will be changed from <em>Heading 4</em> to <em>Heading 5</em>.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="indent-paragraphs-that-start-with">Indent paragraphs that start with '&gt; '</h2>
+<p>This will select all paragraphs that start with "&gt; " and change their paragraph style to <em>Quotations</em>.</p>
+<p>Note: When exporting to yWriter, <em>Quotations</em> style paragraphs will automatically marked with "&gt; " at the beginning.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="replace-list-strokes-with-bullets">Replace list strokes with bullets</h2>
+<p>This will select all paragraphs that start with "- " and apply a list paragraph style.</p>
+<p>Note: When exporting to yWriter, Lists will automatically marked with "- " list strokes.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+</body>
+</html>
