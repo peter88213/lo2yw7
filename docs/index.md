@@ -1,18 +1,12 @@
 ![screenshot](Screenshots/lo_menu.png)
 
-[yWriter](http://spacejock.com/yWriter7.html) is a free word processor written by Australian author and programmer Simon Haynes. yWriter's strengths are structuring novels and controlling the progress during the writing process. With this extension you can combine the advantages of yWriter 7 with the advantages of LibreOffice.
+This is a lightweight variant of the [yw-cnv](https://peter88213.github.io/yw-cnv) extension,  providing export to the yw7 file format only. It is primarily intended as a complement to [novelyst](https://peter88213.github.io/novelyst), for writing ODF documents back to the yw7 file format. 
 
 ## Features
 
-- Generate a "standard manuscript" formatted **ODF text document (ODT)** from a yWriter 7 project.
-- Load yWriter 7 chapters and scenes into an OpenDocument file with chapter and scene markers for **proof reading** and writing back.
-- Generate a **brief synopsis** with chapter and scene titles from a yWriter 7 project.
-- Generate a **character list** that can be edited in Office Calc and written back to yWriter format.
-- Generate a **location list** that can be edited in Office Calc and written back to yWriter format.
-- Generate an **item list** that can be edited in Office Calc and written back to yWriter format.
-- Generate an OpenDocument text file containing navigable **cross references** , such as scenes per character, characters per tag, etc.
-- Generate a new yWriter 7 project from a **work in progress** or an **outline** .
-- The extension is ready for internationalization with GNU gettext. A German localization with help pages in German is provided. 
+- Synchronize a yw7 project from a rewritable OpenDocument file, such as a manuscript, proofing document, several description documents, or spreadsheets, created by [novelyst](https://peter88213.github.io/novelyst) or [yW2OO](https://peter88213.github.io/yW2OO).
+- Generate a new yw7 project file from a **work in progress** or an **outline** .
+- The extension is ready for internationalization with GNU gettext. A German localization with help pages in German is provided.
 
 You can find more information on the [help pages](help).
 
@@ -21,11 +15,11 @@ You can find more information on the [help pages](help).
 - [LibreOffice](https://www.libreoffice.org/) version 5.4 or more recent. LibreOffice 7 is highly recommended.
 - Java Runtime Environment (LibreOffice might need it for macro execution).
 
-__Please note:__ _This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/pywoo)._
+**Please note:** *This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/oo2yw7).*
 
 ## Download and install {#download}
 
-[Download the latest release (version 0.2.3)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-0.2.3.oxt)
+[Download the latest release (version 0.2.4)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-0.2.4.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).

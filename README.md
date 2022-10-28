@@ -27,7 +27,7 @@ For more information, see the [project homepage](https://peter88213.github.io/lo
 
 ### Development tools
 
-- [Python](https://python.org) version 3.9
+- [Python](https://python.org) version 3.10.
 - [Eclipse IDE](https://eclipse.org) with [PyDev](https://pydev.org) and [EGit](https://www.eclipse.org/egit/)
 - [Apache Ant](https://ant.apache.org/) for building the application script
 - [pandoc](https://pandoc.org/) for building the HTML help pages

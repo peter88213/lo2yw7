@@ -1,6 +1,6 @@
 """Convert html/csv to yw7. 
 
-Version 0.2.3
+Version 0.2.4
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -71,7 +71,7 @@ oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.Packag
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.lo2yw7")
 packagePath = uno.fileUrlToSystemPath(sPackageLocation)
 LOCALE_PATH = f'{packagePath}/lo2yw7/locale/'
-CURRENT_LANGUAGE = locale.getdefaultlocale()[0][:2]
+CURRENT_LANGUAGE = locale.getlocale()[0][:2]
 try:
     t = gettext.translation('pywriter', LOCALE_PATH, languages=[CURRENT_LANGUAGE])
     _ = t.gettext
@@ -1336,7 +1336,7 @@ class Novel(BasicElement):
         """
         if not self.languageCode or not self.countryCode:
             # Language or country isn't set.
-            sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
+            sysLng, sysCtr = locale.getlocale()[0].split('_')
             self.languageCode = sysLng
             self.countryCode = sysCtr
             return

@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v0.2.4
+
+- Update the PyWriter library for future Python versions.
+
+Based on PyWriter v7.14.2
+
 ### v0.2.3
 
 - Update help.
