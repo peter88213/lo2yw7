@@ -94,7 +94,7 @@ def export_yw():
 
         targetPath = uno.fileUrlToSystemPath(csvPath)
     else:
-        msgbox(f'{_("File type is not supported")}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
+        msgbox(f'{_("File type is not supported")}: "{norm_path(documentPath)}".', type_msg=ERRORBOX)
         return
 
     converter = Yw7Importer()
