@@ -4,12 +4,12 @@
 
 ## Changelog
 
-### v1.0.0
+### v1.0.1
 
 - Code optimization and library upgrade. 
 - Fix a bug where attempting to save a write-protected file raises an uncaught exception.
 
-Based on PyWriter v8.0.1
+Based on PyWriter v8.0.8
 
 ### v0.2.4
 
