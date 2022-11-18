@@ -14,7 +14,7 @@
                <value xml:lang="de">Export zu yw7 Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <prop oor:name="Target" oor:type="xs:string">
                <value>_self</value>
@@ -52,7 +52,7 @@
                         <value xml:lang="de">Zu yWriter exportieren</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -93,7 +93,7 @@
                         <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -108,7 +108,7 @@
                         <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -123,7 +123,7 @@
                         <value xml:lang="de">Aufzählungsstriche ersetzen</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -157,7 +157,7 @@
                      <value xml:lang="de">Zu yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -177,7 +177,7 @@
                      <value xml:lang="de">Hilfe</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -197,7 +197,7 @@
                      <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -212,7 +212,7 @@
                      <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -227,7 +227,7 @@
                      <value xml:lang="de">Aufzählungsstriche ersetzen</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:lo2yw7-L-1.0.1.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:lo2yw7-L-1.1.0.oxt|lo2yw7|lo2yw7.py$replace_bullets?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
