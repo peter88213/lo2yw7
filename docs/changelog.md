@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.1.0
+
+- Code optimization and library update. 
+
+Based on PyWriter v9.0.4
+
 ### v1.0.1
 
 - Code optimization and library upgrade. 
