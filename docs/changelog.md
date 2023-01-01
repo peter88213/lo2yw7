@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.1.1
+
+- Make it run on old Windows versions. 
+
+Based on PyWriter v10.0.1
+
 ### v1.1.0
 
 - Code optimization and library update. 
