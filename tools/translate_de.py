@@ -16,6 +16,7 @@ File structure:
 │       └── msgfmt.py
 └── lo2yw7/
     ├── src/ 
+    ├── tools/ 
     │   └── translate_de.py
     └── i18n/
         ├── messages.pot
