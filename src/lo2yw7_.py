@@ -19,10 +19,11 @@ from pywriter.pywriter_globals import *
 
 def export_yw():
     """Export the currently loaded document to a yWriter 7 project."""
+    ThisComponent = XSCRIPTCONTEXT.getDocument()
 
     # Get document's filename
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
+    # document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    document = ThisComponent.CurrentController.Frame
 
     ctx = XSCRIPTCONTEXT.getComponentContext()
     smgr = ctx.getServiceManager()
@@ -38,31 +39,9 @@ def export_yw():
     args1.append(PropertyValue())
     # dim args1(1) as new com.sun.star.beans.PropertyValue
 
-    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
-        odtPath = documentPath.replace('.html', '.odt')
-        htmlPath = documentPath.replace('.odt', '.html')
-
-        # Save document in HTML format
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = htmlPath
-        # args1(0).Value = htmlPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'HTML (StarWriter)'
-        # args1(1).Value = "HTML (StarWriter)"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odtPath
-        # args1(0).Value = odtPath
-        args1[1].Value = 'writer8'
-        # args1(1).Value = "writer8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(htmlPath)
+    if documentPath.endswith('.odt'):
+        ThisComponent.store()
+        targetPath = uno.fileUrlToSystemPath(documentPath)
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
         csvPath = documentPath.replace('.ods', '.csv')
