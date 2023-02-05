@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.2.0\n"
-"POT-Creation-Date: 2023-02-02 20:23:32\n"
-"PO-Revision-Date: 2023-02-02 20:23:33\n"
+"POT-Creation-Date: 2023-02-05 13:50:37\n"
+"PO-Revision-Date: 2023-02-05 13:50:37\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -21,9 +21,6 @@ msgstr "Kann Datei nicht verarbeiten"
 
 msgid "Cannot overwrite file"
 msgstr "Kann Datei nicht überschreiben"
-
-msgid "Cannot parse File"
-msgstr "Kann Datei nicht parsen"
 
 msgid "Cannot read file"
 msgstr "Kann Datei nicht lesen"
@@ -127,8 +124,8 @@ msgstr "Planungs-Kapitel"
 msgid "Work in progress"
 msgstr "Manuskript in Arbeit"
 
-msgid "Wrong csv structure"
-msgstr "Falsche csv-Struktur"
+msgid "Wrong table structure"
+msgstr "Falsche Tabellenstruktur"
 
 msgid "yWriter 7 project"
 msgstr "yWriter 7-Projekt"

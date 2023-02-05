@@ -24,54 +24,15 @@ def export_yw():
     # Get document's filename
     # document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
     document = ThisComponent.CurrentController.Frame
-
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext(
-        "com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
     documentPath = XSCRIPTCONTEXT.getDocument().getURL()
     # documentPath = ThisComponent.getURL()
 
-    args1 = []
-    args1.append(PropertyValue())
-    args1.append(PropertyValue())
-    # dim args1(1) as new com.sun.star.beans.PropertyValue
+    # Save the document.
+    ThisComponent.store()
 
-    if documentPath.endswith('.odt'):
-        ThisComponent.store()
+    # Convert the saved document.
+    if documentPath.endswith('.odt') or documentPath.endswith('.ods'):
         targetPath = uno.fileUrlToSystemPath(documentPath)
-    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
-        odsPath = documentPath.replace('.csv', '.ods')
-        csvPath = documentPath.replace('.ods', '.csv')
-
-        # Save document in csv format
-        args1.append(PropertyValue())
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = csvPath
-        # args1(0).Value = csvPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'Text - txt - csv (StarCalc)'
-        # args1(1).Value = "Text - txt - csv (StarCalc)"
-        args1[2].Name = "FilterOptions"
-        # args1(2).Name = "FilterOptions"
-        args1[2].Value = "44,34,76,1,,0,true,true,true"
-        # args1(2).Value = "44,34,76,1,,0,true,true,true"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odsPath
-        # args1(0).Value = odsPath
-        args1[1].Value = 'calc8'
-        # args1(1).Value = "calc8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(csvPath)
     else:
         msgbox(f'{_("File type is not supported")}: "{norm_path(documentPath)}".', type_msg=ERRORBOX)
         return

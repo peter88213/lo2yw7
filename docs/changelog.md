@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.0
+
+- Speed up the process by converting the ODS document instead of an intermeidate HTML file. 
+
+Based on PyWriter v12.0.0
+
 ### v1.1.1
 
 - Make it run on old Windows versions. 
