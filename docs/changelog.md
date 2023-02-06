@@ -6,7 +6,7 @@
 
 ### v1.2.0
 
-- Speed up the process by converting the ODS document instead of an intermeidate HTML file. 
+- Speed up the process by converting the ODS document instead of an intermediate HTML file. 
 
 Based on PyWriter v12.0.0
 

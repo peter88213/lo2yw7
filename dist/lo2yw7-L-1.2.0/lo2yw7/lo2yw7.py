@@ -1,6 +1,6 @@
 """Convert html/csv to yw7. 
 
-Version 1.1.1
+Version 1.2.0
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -435,8 +435,8 @@ class Novel(BasicElement):
         If the locale is missing, set the system locale.  
         If the locale doesn't look plausible, set "no language".        
         """
-        if not self.languageCode or not self.countryCode:
-            # Language or country isn't set.
+        if not self.languageCode:
+            # Language isn't set.
             try:
                 sysLng, sysCtr = locale.getlocale()[0].split('_')
             except:
@@ -879,7 +879,9 @@ class YwCnvFf(YwCnvUi):
                 self.ui.set_info_how(f'!{str(ex)}')
             else:
                 self.export_from_yw(source, target)
+import zipfile
 from html import unescape
+from datetime import datetime
 import xml.etree.ElementTree as ET
 
 
@@ -1146,22 +1148,14 @@ class Scene(BasicElement):
         # xml: <Items><ItemID>
 
         self.date = None
-        # str
+        # str (yyyy-mm-dd)
         # xml: <SpecificDateMode>-1
         # xml: <SpecificDateTime>1900-06-01 20:38:00
 
         self.time = None
-        # str
+        # str (hh:mm:ss)
         # xml: <SpecificDateMode>-1
         # xml: <SpecificDateTime>1900-06-01 20:38:00
-
-        self.minute = None
-        # str
-        # xml: <Minute>
-
-        self.hour = None
-        # str
-        # xml: <Hour>
 
         self.day = None
         # str
@@ -1484,7 +1478,6 @@ class Yw7File(File):
         self.tree = None
         self.scenesSplit = False
 
-        #--- Initialize custom keyword variables.
     def read(self):
         """Parse the yWriter xml file and get the instance variables.
         
@@ -1731,7 +1724,7 @@ class Yw7File(File):
                 pass
 
         def read_scenes(root):
-            #--- Read attributes at scene level from the xml element tree.
+            """ Read attributes at scene level from the xml element tree."""
             for scn in root.iter('SCENE'):
                 scId = scn.find('ID').text
                 self.novel.scenes[scId] = Scene()
@@ -1783,7 +1776,7 @@ class Yw7File(File):
                     if self.novel.scenes[scId].scType == 0:
                         self.novel.scenes[scId].scType = 3
 
-                #--- Export when RTF.
+                # Export when RTF.
                 if scn.find('ExportCondSpecific') is None:
                     self.novel.scenes[scId].doNotExport = False
                 elif scn.find('ExportWhenRTF') is not None:
@@ -1819,23 +1812,46 @@ class Yw7File(File):
                 else:
                     self.novel.scenes[scId].appendToPrev = False
 
+                #--- Scene start.
                 if scn.find('SpecificDateTime') is not None:
-                    dateTime = scn.find('SpecificDateTime').text.split(' ')
-                    for dt in dateTime:
-                        if '-' in dt:
-                            self.novel.scenes[scId].date = dt
-                        elif ':' in dt:
-                            self.novel.scenes[scId].time = dt
+                    dateTimeStr = scn.find('SpecificDateTime').text
+
+                    # Check SpecificDateTime for ISO compliance.
+                    try:
+                        dateTime = datetime.fromisoformat(dateTimeStr)
+                    except:
+                        self.novel.scenes[scId].date = ''
+                        self.novel.scenes[scId].time = ''
+                    else:
+                        startDateTime = dateTime.isoformat().split('T')
+                        self.novel.scenes[scId].date = startDateTime[0]
+                        self.novel.scenes[scId].time = startDateTime[1]
                 else:
                     if scn.find('Day') is not None:
-                        self.novel.scenes[scId].day = scn.find('Day').text
+                        day = scn.find('Day').text
 
+                        # Check if Day represents an integer.
+                        try:
+                            int(day)
+                        except ValueError:
+                            day = ''
+                        self.novel.scenes[scId].day = day
+
+                    hasUnspecificTime = False
                     if scn.find('Hour') is not None:
-                        self.novel.scenes[scId].hour = scn.find('Hour').text
-
+                        hour = scn.find('Hour').text.zfill(2)
+                        hasUnspecificTime = True
+                    else:
+                        hour = '00'
                     if scn.find('Minute') is not None:
-                        self.novel.scenes[scId].minute = scn.find('Minute').text
+                        minute = scn.find('Minute').text.zfill(2)
+                        hasUnspecificTime = True
+                    else:
+                        minute = '00'
+                    if hasUnspecificTime:
+                        self.novel.scenes[scId].time = f'{hour}:{minute}:00'
 
+                #--- Scene duration.
                 if scn.find('LastsDays') is not None:
                     self.novel.scenes[scId].lastsDays = scn.find('LastsDays').text
 
@@ -2061,6 +2077,24 @@ class Yw7File(File):
             return index
 
         def build_scene_subtree(xmlScn, prjScn):
+
+            def remove_date_time():
+                """Delete all scene start data."""
+                if xmlScn.find('SpecificDateTime') is not None:
+                    xmlScn.remove(xmlScn.find('SpecificDateTime'))
+
+                if xmlScn.find('SpecificDateMode') is not None:
+                    xmlScn.remove(xmlScn.find('SpecificDateMode'))
+
+                if xmlScn.find('Day') is not None:
+                    xmlScn.remove(xmlScn.find('Day'))
+
+                if xmlScn.find('Hour') is not None:
+                    xmlScn.remove(xmlScn.find('Hour'))
+
+                if xmlScn.find('Minute') is not None:
+                    xmlScn.remove(xmlScn.find('Minute'))
+
             i = 1
             i = set_element(xmlScn, 'Title', prjScn.title, i)
 
@@ -2074,7 +2108,8 @@ class Yw7File(File):
                 try:
                     xmlScn.find('Desc').text = prjScn.desc
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Desc').text = prjScn.desc
+                    if prjScn.desc:
+                        ET.SubElement(xmlScn, 'Desc').text = prjScn.desc
 
             if xmlScn.find('SceneContent') is None:
                 ET.SubElement(xmlScn, 'SceneContent').text = prjScn.sceneContent
@@ -2154,37 +2189,43 @@ class Yw7File(File):
                 try:
                     xmlScn.find('Notes').text = prjScn.notes
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Notes').text = prjScn.notes
+                    if prjScn.notes:
+                        ET.SubElement(xmlScn, 'Notes').text = prjScn.notes
 
             if prjScn.tags is not None:
                 try:
                     xmlScn.find('Tags').text = list_to_string(prjScn.tags)
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Tags').text = list_to_string(prjScn.tags)
+                    if prjScn.tags:
+                        ET.SubElement(xmlScn, 'Tags').text = list_to_string(prjScn.tags)
 
             if prjScn.field1 is not None:
                 try:
                     xmlScn.find('Field1').text = prjScn.field1
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Field1').text = prjScn.field1
+                    if prjScn.field1:
+                        ET.SubElement(xmlScn, 'Field1').text = prjScn.field1
 
             if prjScn.field2 is not None:
                 try:
                     xmlScn.find('Field2').text = prjScn.field2
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Field2').text = prjScn.field2
+                    if prjScn.field2:
+                        ET.SubElement(xmlScn, 'Field2').text = prjScn.field2
 
             if prjScn.field3 is not None:
                 try:
                     xmlScn.find('Field3').text = prjScn.field3
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Field3').text = prjScn.field3
+                    if prjScn.field3:
+                        ET.SubElement(xmlScn, 'Field3').text = prjScn.field3
 
             if prjScn.field4 is not None:
                 try:
                     xmlScn.find('Field4').text = prjScn.field4
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Field4').text = prjScn.field4
+                    if prjScn.field4:
+                        ET.SubElement(xmlScn, 'Field4').text = prjScn.field4
 
             if prjScn.appendToPrev:
                 if xmlScn.find('AppendToPrev') is None:
@@ -2192,10 +2233,18 @@ class Yw7File(File):
             elif xmlScn.find('AppendToPrev') is not None:
                 xmlScn.remove(xmlScn.find('AppendToPrev'))
 
-            # Date/time information
+            #--- Write scene start.
             if (prjScn.date is not None) and (prjScn.time is not None):
-                dateTime = f'{prjScn.date} {prjScn.time}'
-                if xmlScn.find('SpecificDateTime') is not None:
+                separator = ' '
+                dateTime = f'{prjScn.date}{separator}{prjScn.time}'
+
+                # Remove scene start data from XML, if date and time are empty strings.
+                if dateTime == separator:
+                    remove_date_time()
+
+                elif xmlScn.find('SpecificDateTime') is not None:
+                    if dateTime.count(':') < 2:
+                        dateTime = f'{dateTime}:00'
                     xmlScn.find('SpecificDateTime').text = dateTime
                 else:
                     ET.SubElement(xmlScn, 'SpecificDateTime').text = dateTime
@@ -2210,46 +2259,55 @@ class Yw7File(File):
                     if xmlScn.find('Minute') is not None:
                         xmlScn.remove(xmlScn.find('Minute'))
 
-            elif (prjScn.day is not None) or (prjScn.hour is not None) or (prjScn.minute is not None):
+            elif (prjScn.day is not None) or (prjScn.time is not None):
 
-                if xmlScn.find('SpecificDateTime') is not None:
-                    xmlScn.remove(xmlScn.find('SpecificDateTime'))
+                # Remove scene start data from XML, if day and time are empty strings.
+                if not prjScn.day and not prjScn.time:
+                    remove_date_time()
 
-                if xmlScn.find('SpecificDateMode') is not None:
-                    xmlScn.remove(xmlScn.find('SpecificDateMode'))
-                if prjScn.day is not None:
-                    try:
-                        xmlScn.find('Day').text = prjScn.day
-                    except(AttributeError):
-                        ET.SubElement(xmlScn, 'Day').text = prjScn.day
-                if prjScn.hour is not None:
-                    try:
-                        xmlScn.find('Hour').text = prjScn.hour
-                    except(AttributeError):
-                        ET.SubElement(xmlScn, 'Hour').text = prjScn.hour
-                if prjScn.minute is not None:
-                    try:
-                        xmlScn.find('Minute').text = prjScn.minute
-                    except(AttributeError):
-                        ET.SubElement(xmlScn, 'Minute').text = prjScn.minute
+                else:
+                    if xmlScn.find('SpecificDateTime') is not None:
+                        xmlScn.remove(xmlScn.find('SpecificDateTime'))
 
+                    if xmlScn.find('SpecificDateMode') is not None:
+                        xmlScn.remove(xmlScn.find('SpecificDateMode'))
+                    if prjScn.day is not None:
+                        try:
+                            xmlScn.find('Day').text = prjScn.day
+                        except(AttributeError):
+                            ET.SubElement(xmlScn, 'Day').text = prjScn.day
+                    if prjScn.time is not None:
+                        hours, minutes, seconds = prjScn.time.split(':')
+                        try:
+                            xmlScn.find('Hour').text = hours
+                        except(AttributeError):
+                            ET.SubElement(xmlScn, 'Hour').text = hours
+                        try:
+                            xmlScn.find('Minute').text = minutes
+                        except(AttributeError):
+                            ET.SubElement(xmlScn, 'Minute').text = minutes
+
+            #--- Write scene duration.
             if prjScn.lastsDays is not None:
                 try:
                     xmlScn.find('LastsDays').text = prjScn.lastsDays
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'LastsDays').text = prjScn.lastsDays
+                    if prjScn.lastsDays:
+                        ET.SubElement(xmlScn, 'LastsDays').text = prjScn.lastsDays
 
             if prjScn.lastsHours is not None:
                 try:
                     xmlScn.find('LastsHours').text = prjScn.lastsHours
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'LastsHours').text = prjScn.lastsHours
+                    if prjScn.lastsHours:
+                        ET.SubElement(xmlScn, 'LastsHours').text = prjScn.lastsHours
 
             if prjScn.lastsMinutes is not None:
                 try:
                     xmlScn.find('LastsMinutes').text = prjScn.lastsMinutes
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'LastsMinutes').text = prjScn.lastsMinutes
+                    if prjScn.lastsMinutes:
+                        ET.SubElement(xmlScn, 'LastsMinutes').text = prjScn.lastsMinutes
 
             # Plot related information
             if prjScn.isReactionScene:
@@ -2268,25 +2326,29 @@ class Yw7File(File):
                 try:
                     xmlScn.find('Goal').text = prjScn.goal
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Goal').text = prjScn.goal
+                    if prjScn.goal:
+                        ET.SubElement(xmlScn, 'Goal').text = prjScn.goal
 
             if prjScn.conflict is not None:
                 try:
                     xmlScn.find('Conflict').text = prjScn.conflict
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Conflict').text = prjScn.conflict
+                    if prjScn.conflict:
+                        ET.SubElement(xmlScn, 'Conflict').text = prjScn.conflict
 
             if prjScn.outcome is not None:
                 try:
                     xmlScn.find('Outcome').text = prjScn.outcome
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'Outcome').text = prjScn.outcome
+                    if prjScn.outcome:
+                        ET.SubElement(xmlScn, 'Outcome').text = prjScn.outcome
 
             if prjScn.image is not None:
                 try:
                     xmlScn.find('ImageFile').text = prjScn.image
                 except(AttributeError):
-                    ET.SubElement(xmlScn, 'ImageFile').text = prjScn.image
+                    if prjScn.image:
+                        ET.SubElement(xmlScn, 'ImageFile').text = prjScn.image
 
             #--- Characters/locations/items
             if prjScn.characters is not None:
@@ -2318,6 +2380,48 @@ class Yw7File(File):
                     items = ET.SubElement(xmlScn, 'Items')
                 for itId in prjScn.items:
                     ET.SubElement(items, 'ItemID').text = itId
+
+            ''' Removing empty characters/locations/items entries
+            
+            if prjScn.characters is not None:
+                characters = xmlScn.find('Characters')
+                if characters is not None:
+                    for oldCrId in characters.findall('CharID'):
+                        characters.remove(oldCrId)
+                if prjScn.characters:
+                    if characters is None:
+                        characters = ET.SubElement(xmlScn, 'Characters')
+                    for crId in prjScn.characters:
+                        ET.SubElement(characters, 'CharID').text = crId
+                elif characters is not None:
+                    xmlScn.remove(xmlScn.find('Characters'))
+
+            if prjScn.locations is not None:
+                locations = xmlScn.find('Locations')
+                if locations is not None:
+                    for oldLcId in locations.findall('LocID'):
+                        locations.remove(oldLcId)
+                if prjScn.locations:
+                    if locations is None:
+                        locations = ET.SubElement(xmlScn, 'Locations')
+                    for lcId in prjScn.locations:
+                        ET.SubElement(locations, 'LocID').text = lcId
+                elif locations is not None:
+                    xmlScn.remove(xmlScn.find('Locations'))
+
+            if prjScn.items is not None:
+                items = xmlScn.find('Items')
+                if items is not None:
+                    for oldItId in items.findall('ItemID'):
+                        items.remove(oldItId)
+                if prjScn.items:
+                    if items is None:
+                        items = ET.SubElement(xmlScn, 'Items')
+                    for itId in prjScn.items:
+                        ET.SubElement(items, 'ItemID').text = itId
+                elif items is not None:
+                    xmlScn.remove(xmlScn.find('Items'))
+            '''
 
         def build_chapter_subtree(xmlChp, prjChp, sortOrder):
             # This is how yWriter 7.1.3.0 writes the chapter type:
@@ -2961,38 +3065,265 @@ class Yw7File(File):
                 for scId in self.novel.chapters[chId].srtScenes:
                     self.novel.scenes[scId].scType = self.novel.chapters[chId].chType
 
-from html.parser import HTMLParser
+from xml import sax
 
 
-def read_html_file(filePath):
-    """Open a html file being encoded utf-8 or ANSI.
-    
-    Return the file content in a single string. None in case of error.
-    Raise the "Error" exception in case of error. 
-    """
-    try:
-        with open(filePath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except:
-        # HTML files exported by a word processor may be ANSI encoded.
-        try:
-            with open(filePath, 'r') as f:
-                content = (f.read())
-        except(FileNotFoundError):
-            raise Error(f'{_("File not found")}: "{norm_path(filePath)}".')
-
-    return content
-
-
-class HtmlFile(File, HTMLParser):
-    """Generic HTML file representation.
+class OdtParser(sax.ContentHandler):
+    """An ODT document parser, emulating the html.parser.HTMLParser API.
     
     Public methods:
-        handle_starttag -- identify scenes and chapters.
-        handle comment --
-        read --
+        feed_file(filePath) -- Feed an ODT file to the parser.
+    
+      HTMLParser compatible API
+        handle_starttag -- Stub for a start tag handler to be implemented in a subclass.
+        handle_endtag -- Stub for an end tag handler to be implemented in a subclass.
+        handle_data -- Stub for a data handler to be implemented in a subclass.
+        handle_comment -- Stub for a comment handler to be implemented in a subclass.
+        
+      Methods overriding xml.sax.ContentHandler methods (not meant to be overridden by subclasses)
+        startElement -- Signals the start of an element in non-namespace mode.
+        endElement -- Signals the end of an element in non-namespace mode.
+        characters -- Receive notification of character data.
     """
-    EXTENSION = '.html'
+
+    def __init__(self):
+        super().__init__()
+        self._emTags = ['Emphasis']
+        self._strongTags = ['Strong_20_Emphasis']
+        self._blockquoteTags = ['Quotations']
+        self._languageTags = {}
+        self._headingTags = {}
+        self._heading = None
+        self._paragraph = False
+        self._commentParagraphCount = None
+        self._blockquote = False
+        self._list = False
+        self._span = []
+        self._style = None
+
+    def feed_file(self, filePath):
+        """Feed an ODT file to the parser.
+        
+        Positional arguments:
+            filePath -- str: ODT document path.
+        
+        First unzip the ODT file located at self.filePath, 
+        and get languageCode, countryCode, title, desc, and authorName,        
+        Then call the sax parser for content.xml.
+        """
+        namespaces = dict(
+            office='urn:oasis:names:tc:opendocument:xmlns:office:1.0',
+            style='urn:oasis:names:tc:opendocument:xmlns:style:1.0',
+            fo='urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0',
+            dc='http://purl.org/dc/elements/1.1/',
+            meta='urn:oasis:names:tc:opendocument:xmlns:meta:1.0'
+            )
+
+        try:
+            with zipfile.ZipFile(filePath, 'r') as odfFile:
+                content = odfFile.read('content.xml')
+                styles = odfFile.read('styles.xml')
+                meta = odfFile.read('meta.xml')
+        except:
+            raise Error(f'{_("Cannot read file")}: "{norm_path(filePath)}".')
+
+        #--- Get language and country from 'styles.xml'.
+        root = ET.fromstring(styles)
+        styles = root.find('office:styles', namespaces)
+        for defaultStyle in styles.findall('style:default-style', namespaces):
+            if defaultStyle.get(f'{{{namespaces["style"]}}}family') == 'paragraph':
+                textProperties = defaultStyle.find('style:text-properties', namespaces)
+                lngCode = textProperties.get(f'{{{namespaces["fo"]}}}language')
+                ctrCode = textProperties.get(f'{{{namespaces["fo"]}}}country')
+                self.handle_starttag('body', [('language', lngCode), ('country', ctrCode)])
+                break
+
+        #--- Get title, description, and author from 'meta.xml'.
+        root = ET.fromstring(meta)
+        meta = root.find('office:meta', namespaces)
+        title = meta.find('dc:title', namespaces)
+        if title is not None:
+            if title.text:
+                self.handle_starttag('title', [()])
+                self.handle_data(title.text)
+                self.handle_endtag('title')
+        author = meta.find('meta:initial-creator', namespaces)
+        if author is not None:
+            if author.text:
+                self.handle_starttag('meta', [('', 'author'), ('', author.text)])
+        desc = meta.find('dc:description', namespaces)
+        if desc is not None:
+            if desc.text:
+                self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
+
+        #--- Parse 'content.xml'.
+        sax.parseString(content, self)
+
+    def startElement(self, name, attrs):
+        """Signals the start of an element in non-namespace mode.
+        
+        Overrides the xml.sax.ContentHandler method             
+        """
+        xmlAttributes = {}
+        for attribute in attrs.items():
+            attrKey, attrValue = attribute
+            xmlAttributes[attrKey] = attrValue
+        style = xmlAttributes.get('text:style-name', '')
+        if name == 'text:p':
+            if style in self._languageTags:
+                param = [('lang', self._languageTags[style])]
+            else:
+                param = [()]
+            if self._commentParagraphCount is not None:
+                self._commentParagraphCount += 1
+            elif style in self._blockquoteTags:
+                self.handle_starttag('blockquote', param)
+                self._paragraph = True
+                self._blockquote = True
+            elif style.startswith('Heading'):
+                self._heading = f'h{style[-1]}'
+                self.handle_starttag(self._heading, [()])
+            elif style in self._headingTags:
+                self._heading = self._headingTags[style]
+                self.handle_starttag(self._heading, [()])
+            elif self._list:
+                self.handle_starttag('li', [()])
+                self._paragraph = True
+            else:
+                self.handle_starttag('p', param)
+                self._paragraph = True
+        elif name == 'text:span':
+            if style in self._emTags:
+                self._span.append('em')
+                self.handle_starttag('em', [()])
+            elif style in self._strongTags:
+                self._span.append('strong')
+                self.handle_starttag('strong', [()])
+            elif style in self._languageTags:
+                self._span.append('lang')
+                self.handle_starttag('lang', [('lang', self._languageTags[style])])
+        elif name == 'text:section':
+            sectionId = xmlAttributes['text:name']
+            self.handle_starttag('div', [('id', sectionId)])
+        elif name == 'office:annotation':
+            self._commentParagraphCount = 0
+            self._comment = ''
+        elif name == 'text:h':
+            try:
+                self._heading = f'h{xmlAttributes["text:outline-level"]}'
+            except:
+                self._heading = f'h{style[-1]}'
+            self.handle_starttag(self._heading, [()])
+        elif name == 'text:list-item':
+            self._list = True
+        elif name == 'style:style':
+            self._style = xmlAttributes.get('style:name', None)
+            styleName = xmlAttributes.get('style:parent-style-name', '')
+            if styleName.startswith('Heading'):
+                self._headingTags[self._style] = f'h{styleName[-1]}'
+            elif styleName == 'Quotations':
+                self._blockquoteTags.append(self._style)
+        elif name == 'style:text-properties':
+            if xmlAttributes.get('style:font-style', None) == 'italic':
+                self._emTags.append(self._style)
+            if xmlAttributes.get('style:font-weight', None) == 'bold':
+                self._strongTags.append(self._style)
+            if xmlAttributes.get('fo:language', False):
+                lngCode = xmlAttributes['fo:language']
+                ctrCode = xmlAttributes['fo:country']
+                if ctrCode != 'none':
+                    locale = f'{lngCode}-{ctrCode}'
+                else:
+                    locale = lngCode
+                self._languageTags[self._style] = locale
+
+    def endElement(self, name):
+        """Signals the end of an element in non-namespace mode.
+        
+        Overrides the xml.sax.ContentHandler method     
+        """
+        if name == 'text:p':
+            if self._commentParagraphCount is None:
+                if self._blockquote:
+                    self.handle_endtag('blockquote')
+                    self._blockquote = False
+                elif self._heading:
+                    self.handle_endtag(self._heading)
+                    self._heading = None
+                else:
+                    self.handle_endtag('p')
+                self._paragraph = False
+        elif name == 'text:span':
+            if self._span:
+                self.handle_endtag(self._span.pop())
+        elif name == 'text:section':
+            self.handle_endtag('div')
+        elif name == 'office:annotation':
+            self.handle_comment(self._comment)
+            self._commentParagraphCount = None
+        elif name == 'text:h':
+            self.handle_endtag(self._heading)
+            self._heading = None
+        elif name == 'text:list-item':
+            self._list = False
+        elif name == 'style:style':
+            self._style = None
+
+    def characters(self, content):
+        """Receive notification of character data.
+        
+        Overrides the xml.sax.ContentHandler method             
+        """
+        if self._commentParagraphCount is not None:
+            if self._commentParagraphCount == 1:
+                self._comment = f'{self._comment}{content}'
+        elif self._paragraph:
+            self.handle_data(content)
+        elif self._heading is not None:
+            self.handle_data(content)
+
+    def handle_starttag(self, tag, attrs):
+        """Stub for a start tag handler to be implemented in a subclass.
+        
+        Positional arguments:
+            tag -- str: name of the tag converted to lower case.
+            attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
+        """
+
+    def handle_endtag(self, tag):
+        """Stub for an end tag handler to be implemented in a subclass.
+        
+        Positional arguments:
+            tag -- str: name of the tag converted to lower case.
+        """
+
+    def handle_data(self, data):
+        """Stub for a data handler to be implemented in a subclass.
+
+        Positional arguments:
+            data -- str: text to be stored. 
+        """
+
+    def handle_comment(self, data):
+        """Stub for a comment handler to be implemented in a subclass.
+        
+        Positional arguments:
+            data -- str: comment text. 
+        """
+
+
+
+class OdtReader(File, OdtParser):
+    """Generic ODT file reader.
+    
+    Public methods:
+        handle_starttag(tag, attrs) -- Identify scenes and chapters.
+        handle_endtag(tag) -- Stub for an end tag handler.
+        handle_data(data) -- Stub for a data handler.
+        handle comment(data) -- Process inline comments within scene content.
+        read() -- Parse the file and get the instance variables.
+    """
+    EXTENSION = '.odt'
 
     _TYPE = 0
 
@@ -3003,7 +3334,7 @@ class HtmlFile(File, HTMLParser):
     _INDENT = '>'
 
     def __init__(self, filePath, **kwargs):
-        """Initialize the HTML parser and local instance variables for parsing.
+        """Initialize the ODT parser and local instance variables for parsing.
         
         Positional arguments:
             filePath -- str: path to the file represented by the File instance.
@@ -3011,12 +3342,11 @@ class HtmlFile(File, HTMLParser):
         Optional arguments:
             kwargs -- keyword arguments to be used by subclasses.            
 
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         Scene ID, chapter ID and processed lines must be saved between the transitions.         
         Extends the superclass constructor.
         """
         super().__init__(filePath)
-        HTMLParser.__init__(self)
         self._lines = []
         self._scId = None
         self._chId = None
@@ -3042,20 +3372,6 @@ class HtmlFile(File, HTMLParser):
 
         return text
 
-    def _preprocess(self, text):
-        """Process HTML text before parsing.
-        
-        Positional arguments:
-            text -- str: HTML text to be processed.
-        """
-        return self._convert_to_yw(text)
-
-    def _postprocess(self):
-        """Process the plain text after parsing.
-        
-        This is a hook for subclasses.
-        """
-
     def handle_starttag(self, tag, attrs):
         """Identify scenes and chapters.
         
@@ -3063,9 +3379,9 @@ class HtmlFile(File, HTMLParser):
             tag -- str: name of the tag converted to lower case.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
-        Overrides HTMLparser.handle_starttag() called by the parser to handle the start of a tag. 
-        This method is applicable to HTML files that are divided into chapters and scenes. 
-        For differently structured HTML files  do override this method in a subclass.
+        Overrides the superclass method. 
+        This method is applicable to ODT files that are divided into chapters and scenes. 
+        For differently structured ODT files  do override this method in a subclass.
         """
         if tag == 'div':
             if attrs[0][0] == 'id':
@@ -3089,21 +3405,13 @@ class HtmlFile(File, HTMLParser):
         Positional arguments:
             data -- str: comment text. 
         
-        Overrides HTMLparser.handle_comment() called by the parser when a comment is encountered.
+        Overrides the superclass method.
         """
         if self._scId is not None:
             self._lines.append(f'{self._COMMENT_START}{data}{self._COMMENT_END}')
 
     def read(self):
-        """Parse the file and get the instance variables.
-        
-        This is a template method for subclasses tailored to the 
-        content of the respective HTML file.
-        """
-        content = read_html_file(self._filePath)
-        content = self._preprocess(content)
-        self.feed(content)
-        self._postprocess()
+        OdtParser.feed_file(self, self.filePath)
 
 
 class Splitter:
@@ -3179,7 +3487,7 @@ class Splitter:
                     title = parent.title
                 newScene.title = f'{title} Split: {splitCount}'
             else:
-                newScene.title = f'_("New Scene") Split: {splitCount}'
+                newScene.title = f'{_("New Scene")} Split: {splitCount}'
             if desc:
                 newScene.desc = desc
             if parent.desc and not parent.desc.startswith(WARNING):
@@ -3199,8 +3507,6 @@ class Splitter:
             newScene.date = parent.date
             newScene.time = parent.time
             newScene.day = parent.day
-            newScene.hour = parent.hour
-            newScene.minute = parent.minute
             newScene.lastsDays = parent.lastsDays
             newScene.lastsHours = parent.lastsHours
             newScene.lastsMinutes = parent.lastsMinutes
@@ -3302,8 +3608,8 @@ class Splitter:
         return scenesSplit
 
 
-class HtmlFormatted(HtmlFile):
-    """HTML file representation.
+class OdtRFormatted(OdtReader):
+    """ODT file reader.
 
     Provide methods and data for processing chapters with formatted text.
     """
@@ -3314,9 +3620,9 @@ class HtmlFormatted(HtmlFile):
     _INDENT = '>'
 
     def read(self):
-        """Add instance variables.
-
-        Extends the superclass constructor.
+        """Parse the file and get the instance variables.
+        
+        Extends the superclass method.
         """
         self.novel.languages = []
         super().read()
@@ -3349,8 +3655,8 @@ class HtmlFormatted(HtmlFile):
 
 
 
-class HtmlImport(HtmlFormatted):
-    """HTML 'work in progress' file representation.
+class OdtRImport(OdtRFormatted):
+    """ODT 'work in progress' file reader.
 
     Import untagged chapters and scenes.
     """
@@ -3365,7 +3671,7 @@ class HtmlImport(HtmlFormatted):
         Positional arguments:
             filePath -- str: path to the file represented by the Novel instance.
             
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         Chapter and scene count must be saved between the transitions.         
         Extends the superclass constructor.
         """
@@ -3399,13 +3705,11 @@ class HtmlImport(HtmlFormatted):
                     self._lines.append(f'[lang={self._language}]')
             except:
                 pass
-        elif tag == 'br':
-            self._newline = True
-        elif tag == 'em' or tag == 'i':
+        elif tag == 'em':
             self._lines.append('[i]')
-        elif tag == 'strong' or tag == 'b':
+        elif tag == 'strong':
             self._lines.append('[b]')
-        elif tag == 'span':
+        elif tag == 'lang':
             if attrs[0][0] == 'lang':
                 self._language = attrs[0][1]
                 if not self._language in self.novel.languages:
@@ -3428,26 +3732,22 @@ class HtmlImport(HtmlFormatted):
             self._scId = None
             self._chId = None
         elif tag == 'meta':
-            if attrs[0][1].lower() == 'author':
+            if attrs[0][1] == 'author':
                 self.novel.authorName = attrs[1][1]
-            if attrs[0][1].lower() == 'description':
+            if attrs[0][1] == 'description':
                 self.novel.desc = attrs[1][1]
         elif tag == 'title':
             self._lines = []
         elif tag == 'body':
             for attr in attrs:
-                if attr[0] == 'lang':
-                    try:
-                        lngCode, ctrCode = attr[1].split('-')
-                        self.novel.languageCode = lngCode
-                        self.novel.countryCode = ctrCode
-                    except:
-                        pass
-                    break
+                if attr[0] == 'language':
+                    if attr[1]:
+                        self.novel.languageCode = attr[1]
+                elif attr[0] == 'country':
+                    if attr[1]:
+                        self.novel.countryCode = attr[1]
         elif tag == 'li':
                 self._lines.append(f'{self._BULLET} ')
-        elif tag == 'ul':
-                self._skip_data = True
         elif tag == 'blockquote':
             self._lines.append(f'{self._INDENT} ')
             try:
@@ -3465,14 +3765,13 @@ class HtmlImport(HtmlFormatted):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if tag in ('p', 'blockquote'):
             if self._language:
                 self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
             self._lines.append('\n')
-            self._newline = True
             if self._scId is not None:
                 sceneText = ''.join(self._lines).rstrip()
                 sceneText = self._cleanup_scene(sceneText)
@@ -3481,11 +3780,11 @@ class HtmlImport(HtmlFormatted):
                     self.novel.scenes[self._scId].status = Scene.STATUS.index('Outline')
                 else:
                     self.novel.scenes[self._scId].status = Scene.STATUS.index('Draft')
-        elif tag == 'em' or tag == 'i':
+        elif tag == 'em':
             self._lines.append('[/i]')
-        elif tag == 'strong' or tag == 'b':
+        elif tag == 'strong':
             self._lines.append('[/b]')
-        elif tag == 'span':
+        elif tag == 'lang':
             if self._language:
                 self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
@@ -3502,7 +3801,7 @@ class HtmlImport(HtmlFormatted):
             data -- str: comment text. 
         
         Use marked comments at scene start as scene titles.
-        Overrides HTMLparser.handle_comment() called by the parser when a comment is encountered.
+        Overrides the superclass method.
         """
         if self._scId is not None:
             if not self._lines:
@@ -3521,16 +3820,11 @@ class HtmlImport(HtmlFormatted):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
-        if self._skip_data:
-            self._skip_data = False
-        elif self._scId is not None and self._SCENE_DIVIDER in data:
+        if self._scId is not None and self._SCENE_DIVIDER in data:
             self._scId = None
         else:
-            if self._newline:
-                data = data.rstrip()
-                self._newline = False
             self._lines.append(data)
 
     def read(self):
@@ -3539,8 +3833,8 @@ class HtmlImport(HtmlFormatted):
 
 
 
-class HtmlOutline(HtmlFile):
-    """HTML outline file representation.
+class OdtROutline(OdtReader):
+    """ODT outline file reader.
 
     Import an outline without chapter and scene tags.
     """
@@ -3553,7 +3847,7 @@ class HtmlOutline(HtmlFile):
         Positional arguments:
             filePath -- str: path to the file represented by the Novel instance.
             
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         Chapter and scene count must be saved between the transitions.         
         Extends the superclass constructor.
         """
@@ -3595,22 +3889,20 @@ class HtmlOutline(HtmlFile):
             self._scId = None
             self._chId = None
         elif tag == 'meta':
-            if attrs[0][1].lower() == 'author':
+            if attrs[0][1] == 'author':
                 self.novel.authorName = attrs[1][1]
-            if attrs[0][1].lower() == 'description':
+            if attrs[0][1] == 'description':
                 self.novel.desc = attrs[1][1]
         elif tag == 'title':
             self._lines = []
         elif tag == 'body':
             for attr in attrs:
-                if attr[0].lower() == 'lang':
-                    try:
-                        lngCode, ctrCode = attr[1].split('-')
-                        self.novel.languageCode = lngCode
-                        self.novel.countryCode = ctrCode
-                    except:
-                        pass
-                    break
+                if attr[0] == 'language':
+                    if attr[1]:
+                        self.novel.languageCode = attr[1]
+                elif attr[0] == 'country':
+                    if attr[1]:
+                        self.novel.countryCode = attr[1]
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.
@@ -3620,20 +3912,22 @@ class HtmlOutline(HtmlFile):
 
         Overrides the superclass method.
         """
+        text = ''.join(self._lines)
         if tag == 'p':
-            self._lines.append('\n')
+            text = f'{text.strip()}\n'
+            self._lines = [text]
             if self._scId is not None:
-                self.novel.scenes[self._scId].desc = ''.join(self._lines)
+                self.novel.scenes[self._scId].desc = text
             elif self._chId is not None:
-                self.novel.chapters[self._chId].desc = ''.join(self._lines)
+                self.novel.chapters[self._chId].desc = text
         elif tag in ('h1', 'h2'):
-            self.novel.chapters[self._chId].title = ''.join(self._lines)
+            self.novel.chapters[self._chId].title = text.strip()
             self._lines = []
         elif tag == 'h3':
-            self.novel.scenes[self._scId].title = ''.join(self._lines)
+            self.novel.scenes[self._scId].title = text.strip()
             self._lines = []
         elif tag == 'title':
-            self.novel.title = ''.join(self._lines)
+            self.novel.title = text.strip()
 
     def handle_data(self, data):
         """Collect data within scene sections.
@@ -3643,7 +3937,7 @@ class HtmlOutline(HtmlFile):
         
         Overrides the superclass method.
         """
-        self._lines.append(data.strip())
+        self._lines.append(data)
 
 
 class NewProjectFactory(FileFactory):
@@ -3675,13 +3969,18 @@ class NewProjectFactory(FileFactory):
 
         fileName, __ = os.path.splitext(sourcePath)
         targetFile = Yw7File(f'{fileName}{Yw7File.EXTENSION}', **kwargs)
-        if sourcePath.endswith('.html'):
+        if sourcePath.endswith('.odt'):
             # The source file might be an outline or a "work in progress".
-            content = read_html_file(sourcePath)
-            if "<h3" in content.lower():
-                sourceFile = HtmlOutline(sourcePath, **kwargs)
+            try:
+                with zipfile.ZipFile(sourcePath, 'r') as odfFile:
+                    content = odfFile.read('content.xml')
+            except:
+                raise Error(f'{_("Cannot read file")}: "{norm_path(sourcePath)}".')
+
+            if bytes('Heading_20_3', encoding='utf-8') in content:
+                sourceFile = OdtROutline(sourcePath, **kwargs)
             else:
-                sourceFile = HtmlImport(sourcePath, **kwargs)
+                sourceFile = OdtRImport(sourcePath, **kwargs)
             return sourceFile, targetFile
 
         else:
@@ -3710,8 +4009,8 @@ class NewProjectFactory(FileFactory):
         return True
 
 
-class HtmlProof(HtmlFormatted):
-    """HTML proof reading file representation.
+class OdtRProof(OdtRFormatted):
+    """ODT proof reading file reader.
 
     Import a manuscript with visibly tagged chapters and scenes.
     """
@@ -3727,11 +4026,11 @@ class HtmlProof(HtmlFormatted):
         
         Overrides the superclass method.
         """
-        if tag == 'em' or tag == 'i':
+        if tag == 'em':
             self._lines.append('[i]')
-        elif tag == 'strong' or tag == 'b':
+        elif tag == 'strong':
             self._lines.append('[b]')
-        elif tag in ('span', 'p'):
+        elif tag in ('lang', 'p'):
             try:
                 if attrs[0][0] == 'lang':
                     self._language = attrs[0][1]
@@ -3758,14 +4057,12 @@ class HtmlProof(HtmlFormatted):
                 pass
         elif tag == 'body':
             for attr in attrs:
-                if attr[0] == 'lang':
-                    try:
-                        lngCode, ctrCode = attr[1].split('-')
-                        self.novel.languageCode = lngCode
-                        self.novel.countryCode = ctrCode
-                    except:
-                        pass
-                    break
+                if attr[0] == 'language':
+                    if attr[1]:
+                        self.novel.languageCode = attr[1]
+                elif attr[0] == 'country':
+                    if attr[1]:
+                        self.novel.countryCode = attr[1]
         elif tag in ('br', 'ul'):
             self._skip_data = True
             # avoid inserting an unwanted blank
@@ -3776,18 +4073,18 @@ class HtmlProof(HtmlFormatted):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if tag in ['p', 'h2', 'h1', 'blockquote']:
+            self._lines.append('\n')
             if self._language:
                 self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
-            self._newline = True
-        elif tag == 'em' or tag == 'i':
+        elif tag == 'em':
             self._lines.append('[/i]')
-        elif tag == 'strong' or tag == 'b':
+        elif tag == 'strong':
             self._lines.append('[/b]')
-        elif tag == 'span':
+        elif tag == 'lang':
             if self._language:
                 self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
@@ -3798,7 +4095,7 @@ class HtmlProof(HtmlFormatted):
         Positional arguments:
             data -- str: text to be parsed. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._skip_data:
             self._skip_data = False
@@ -3820,14 +4117,11 @@ class HtmlProof(HtmlFormatted):
         elif '[/ChID' in data:
             self._chId = None
         elif self._scId is not None:
-            if self._newline:
-                self._newline = False
-                data = f'{data.rstrip()}\n'
             self._lines.append(data)
 
 
-class HtmlManuscript(HtmlFormatted):
-    """HTML manuscript file representation.
+class OdtRManuscript(OdtRFormatted):
+    """ODT manuscript file reader.
 
     Import a manuscript with invisibly tagged chapters and scenes.
     """
@@ -3845,11 +4139,11 @@ class HtmlManuscript(HtmlFormatted):
         """
         super().handle_starttag(tag, attrs)
         if self._scId is not None:
-            if tag == 'em' or tag == 'i':
+            if tag == 'em':
                 self._lines.append('[i]')
-            elif tag == 'strong' or tag == 'b':
+            elif tag == 'strong':
                 self._lines.append('[b]')
-            elif tag in ('span', 'p'):
+            elif tag in ('lang', 'p'):
                 try:
                     if attrs[0][0] == 'lang':
                         self._language = attrs[0][1]
@@ -3880,14 +4174,12 @@ class HtmlManuscript(HtmlFormatted):
                     pass
         elif tag == 'body':
             for attr in attrs:
-                if attr[0] == 'lang':
-                    try:
-                        lngCode, ctrCode = attr[1].split('-')
-                        self.novel.languageCode = lngCode
-                        self.novel.countryCode = ctrCode
-                    except:
-                        pass
-                    break
+                if attr[0] == 'language':
+                    if attr[1]:
+                        self.novel.languageCode = attr[1]
+                elif attr[0] == 'country':
+                    if attr[1]:
+                        self.novel.countryCode = attr[1]
 
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
@@ -3895,7 +4187,7 @@ class HtmlManuscript(HtmlFormatted):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._scId is not None:
             if tag in ('p', 'blockquote'):
@@ -3903,11 +4195,11 @@ class HtmlManuscript(HtmlFormatted):
                     self._lines.append(f'[/lang={self._language}]')
                     self._language = ''
                 self._lines.append('\n')
-            elif tag == 'em' or tag == 'i':
+            elif tag == 'em':
                 self._lines.append('[/i]')
-            elif tag == 'strong' or tag == 'b':
+            elif tag == 'strong':
                 self._lines.append('[/b]')
-            elif tag == 'span':
+            elif tag == 'lang':
                 if self._language:
                     self._lines.append(f'[/lang={self._language}]')
                     self._language = ''
@@ -3931,7 +4223,7 @@ class HtmlManuscript(HtmlFormatted):
             data -- str: comment text. 
         
         Use marked comments at scene start as scene titles.
-        Overrides HTMLparser.handle_comment() called by the parser when a comment is encountered.
+        Overrides the superclass method.
         """
         if self._scId is not None:
             if not self._lines:
@@ -3953,7 +4245,7 @@ class HtmlManuscript(HtmlFormatted):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._skip_data:
             self._skip_data = False
@@ -3965,8 +4257,8 @@ class HtmlManuscript(HtmlFormatted):
                 self.chapters[self._chId].title = data.strip()
 
 
-class HtmlNotes(HtmlManuscript):
-    """HTML "Notes" chapters file representation.
+class OdtRNotes(OdtRManuscript):
+    """ODT "Notes" chapters file reader.
 
     Import a manuscript with invisibly tagged chapters and scenes.
     """
@@ -3976,8 +4268,8 @@ class HtmlNotes(HtmlManuscript):
     _TYPE = 1
 
 
-class HtmlTodo(HtmlManuscript):
-    """HTML "Todo" chapters file representation.
+class OdtRTodo(OdtRManuscript):
+    """ODT "Todo" chapters file reader.
 
     Import a manuscript with invisibly tagged chapters and scenes.
     """
@@ -3987,8 +4279,8 @@ class HtmlTodo(HtmlManuscript):
     _TYPE = 2
 
 
-class HtmlSceneDesc(HtmlFile):
-    """HTML scene summaries file representation.
+class OdtRSceneDesc(OdtReader):
+    """ODT scene summaries file reader.
 
     Import a full synopsis with invisibly tagged scene descriptions.
     """
@@ -4001,7 +4293,7 @@ class HtmlSceneDesc(HtmlFile):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._scId is not None:
             if tag == 'div':
@@ -4031,17 +4323,17 @@ class HtmlSceneDesc(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._scId is not None:
-            self._lines.append(data.strip())
+            self._lines.append(data)
         elif self._chId is not None:
             if not self.novel.chapters[self._chId].title:
                 self.novel.chapters[self._chId].title = data.strip()
 
 
-class HtmlChapterDesc(HtmlFile):
-    """HTML chapter summaries file representation.
+class OdtRChapterDesc(OdtReader):
+    """ODT chapter summaries file reader.
 
     Import a brief synopsis with invisibly tagged chapter descriptions.
     """
@@ -4054,7 +4346,7 @@ class HtmlChapterDesc(HtmlFile):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._chId is not None:
             if tag == 'div':
@@ -4074,14 +4366,14 @@ class HtmlChapterDesc(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._chId is not None:
             self._lines.append(data.strip())
 
 
-class HtmlPartDesc(HtmlChapterDesc):
-    """HTML part summaries file representation.
+class OdtRPartDesc(OdtRChapterDesc):
+    """ODT part summaries file reader.
 
     Parts are chapters marked in yWriter as beginning of a new section.
     Import a synopsis with invisibly tagged part descriptions.
@@ -4090,8 +4382,8 @@ class HtmlPartDesc(HtmlChapterDesc):
     SUFFIX = '_parts'
 
 
-class HtmlCharacters(HtmlFile):
-    """HTML character descriptions file representation.
+class OdtRCharacters(OdtReader):
+    """ODT character descriptions file reader.
 
     Import a character sheet with invisibly tagged descriptions.
     """
@@ -4104,11 +4396,11 @@ class HtmlCharacters(HtmlFile):
         Positional arguments:
             filePath -- str: path to the file represented by the Novel instance.
             
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         Character ID and section title must be saved between the transitions.         
         Extends the superclass constructor.
         """
-        HtmlFile.__init__(self, filePath)
+        super().__init__(filePath)
         self._crId = None
         self._section = None
 
@@ -4142,7 +4434,7 @@ class HtmlCharacters(HtmlFile):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._crId is not None:
             if tag == 'div':
@@ -4171,14 +4463,14 @@ class HtmlCharacters(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._section is not None:
             self._lines.append(data.strip())
 
 
-class HtmlLocations(HtmlFile):
-    """HTML location descriptions file representation.
+class OdtRLocations(OdtReader):
+    """ODT location descriptions file reader.
 
     Import a location sheet with invisibly tagged descriptions.
     """
@@ -4191,7 +4483,7 @@ class HtmlLocations(HtmlFile):
         Positional arguments:
             filePath -- str: path to the file represented by the Novel instance.
             
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         The location ID must be saved between the transitions.         
         Extends the superclass constructor.
         """
@@ -4221,7 +4513,7 @@ class HtmlLocations(HtmlFile):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._lcId is not None:
             if tag == 'div':
@@ -4237,14 +4529,14 @@ class HtmlLocations(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._lcId is not None:
             self._lines.append(data.strip())
 
 
-class HtmlItems(HtmlFile):
-    """HTML item descriptions file representation.
+class OdtRItems(OdtReader):
+    """ODT item descriptions file reader.
 
     Import a item sheet with invisibly tagged descriptions.
     """
@@ -4257,7 +4549,7 @@ class HtmlItems(HtmlFile):
         Positional arguments:
             filePath -- str: path to the file represented by the Novel instance.
             
-        The HTML parser works like a state machine. 
+        The ODT parser works like a state machine. 
         The item ID must be saved between the transitions.         
         Extends the superclass constructor.
         """
@@ -4287,7 +4579,7 @@ class HtmlItems(HtmlFile):
         Positional arguments:
             tag -- str: name of the tag converted to lower case.
 
-        Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
+        Overrides the superclass method.
         """
         if self._itId is not None:
             if tag == 'div':
@@ -4303,11 +4595,10 @@ class HtmlItems(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
+        Overrides the superclass method.
         """
         if self._itId is not None:
             self._lines.append(data.strip())
-import csv
 from string import Template
 
 
@@ -4494,7 +4785,7 @@ class FileExport(File):
         else:
             reactionScene = Scene.ACTION_MARKER
 
-        #--- Create a combined scDate information.
+        #--- Date or day.
         if self.novel.scenes[scId].date is not None and self.novel.scenes[scId].date != Scene.NULL_DATE:
             scDay = ''
             scDate = self.novel.scenes[scId].date
@@ -4508,28 +4799,12 @@ class FileExport(File):
                 scDay = ''
                 cmbDate = ''
 
-        #--- Create a combined time information.
-        if self.novel.scenes[scId].time is not None and self.novel.scenes[scId].date != Scene.NULL_DATE:
-            scHour = ''
-            scMinute = ''
-            scTime = self.novel.scenes[scId].time
-            cmbTime = self.novel.scenes[scId].time.rsplit(':', 1)[0]
+        #--- Time.
+        if self.novel.scenes[scId].time is not None:
+            scTime = self.novel.scenes[scId].time.rsplit(':', 1)[0]
+            # remove seconds
         else:
             scTime = ''
-            if self.novel.scenes[scId].hour or self.novel.scenes[scId].minute:
-                if self.novel.scenes[scId].hour:
-                    scHour = self.novel.scenes[scId].hour
-                else:
-                    scHour = '00'
-                if self.novel.scenes[scId].minute:
-                    scMinute = self.novel.scenes[scId].minute
-                else:
-                    scMinute = '00'
-                cmbTime = f'{scHour.zfill(2)}:{scMinute.zfill(2)}'
-            else:
-                scHour = ''
-                scMinute = ''
-                cmbTime = ''
 
         #--- Create a combined duration information.
         if self.novel.scenes[scId].lastsDays is not None and self.novel.scenes[scId].lastsDays != '0':
@@ -4574,10 +4849,7 @@ class FileExport(File):
             Date=scDate,
             Time=scTime,
             Day=scDay,
-            Hour=scHour,
-            Minute=scMinute,
             ScDate=cmbDate,
-            ScTime=cmbTime,
             LastsDays=lastsDays,
             LastsHours=lastsHours,
             LastsMinutes=lastsMinutes,
@@ -5027,17 +5299,99 @@ class FileExport(File):
         return text
 
 
-class CsvFile(File):
-    """csv file representation.
+class OdsParser:
+    """An ODS document parser.
+    
+    Public methods:
+        get_rows(filePath, cellsPerRow) -- Return rows and cells from an ODS document.
+           
+    Return a list of rows, containing lists of column cells.
+    The PyWriter csv import classes thus can be reused.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._rows = []
+        self._cells = []
+        self._inCell = None
+        self.__cellsPerRow = 0
+
+    def get_rows(self, filePath, cellsPerRow):
+        """Return a nested list with rows and cells from an ODS document.
+        
+        Positional arguments:
+            filePath -- str: ODS document path.
+            cellsPerRow -- int: Number of cells per row.
+        
+        First unzip the ODS file located at self.filePath, then parse content.xml.
+        """
+        namespaces = dict(
+            office='urn:oasis:names:tc:opendocument:xmlns:office:1.0',
+            text='urn:oasis:names:tc:opendocument:xmlns:text:1.0',
+            table='urn:oasis:names:tc:opendocument:xmlns:table:1.0',
+            )
+        try:
+            with zipfile.ZipFile(filePath, 'r') as odfFile:
+                content = odfFile.read('content.xml')
+        except:
+            raise Error(f'{_("Cannot read file")}: "{norm_path(filePath)}".')
+
+        root = ET.fromstring(content)
+
+        #--- Parse 'content.xml'.
+        body = root.find('office:body', namespaces)
+        spreadsheet = body.find('office:spreadsheet', namespaces)
+        table = spreadsheet.find('table:table', namespaces)
+        rows = []
+        for row in table.findall('table:table-row', namespaces):
+            cells = []
+            i = 0
+            for cell in row.findall('table:table-cell', namespaces):
+                content = ''
+                if cell.find('text:p', namespaces) is not None:
+                    paragraphs = []
+                    for par in cell.findall('text:p', namespaces):
+                        strippedText = ''.join(par.itertext())
+                        paragraphs.append(strippedText)
+                    content = '\n'.join(paragraphs)
+                    cells.append(content)
+                elif i > 0:
+                    cells.append(content)
+                else:
+                    # The ID cell is empty.
+                    break
+
+                i += 1
+                if i >= cellsPerRow:
+                    # The cell is excess, created by Calc.
+                    break
+
+                # Add repeated cells.
+                attribute = cell.get(f'{{{namespaces["table"]}}}number-columns-repeated')
+                if attribute:
+                    repeat = int(attribute) - 1
+                    for j in range(repeat):
+                        if i >= cellsPerRow:
+                            # The cell is excess, created by Calc.
+                            break
+
+                        cells.append(content)
+                        i += 1
+            if cells:
+                rows.append(cells)
+                # print(cells)
+        return rows
+
+
+
+class OdsReader(File):
+    """Generic OpenDocument spreadsheet document reader.
 
     Public methods:
         read() -- parse the file and get the instance variables.
 
-    Convention:
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR character.
     """
-    EXTENSION = '.csv'
+    EXTENSION = '.ods'
     # overwrites File.EXTENSION
     _SEPARATOR = ','
     # delimits data fields within a record.
@@ -5062,45 +5416,25 @@ class CsvFile(File):
     def read(self):
         """Parse the file and get the instance variables.
         
-        Parse the csv file located at filePath, fetching the rows.
+        Parse the ODS file located at filePath, fetching the rows.
         Check the number of fields in each row.
         Raise the "Error" exception in case of error. 
         Overrides the superclass method.
         """
         self._rows = []
         cellsPerRow = len(self._rowTitles)
-        try:
-            with open(self.filePath, newline='', encoding='utf-8') as f:
-                reader = csv.reader(f, delimiter=self._SEPARATOR)
-                for row in reader:
-                    if len(row) != cellsPerRow:
-                        raise Error(f'{_("Wrong csv structure")}.')
-
-                    self._rows.append(row)
-        except(FileNotFoundError):
-            raise Error(f'{_("File not found")}: "{norm_path(self.filePath)}".')
-        except:
-            raise Error(f'{_("Cannot parse File")}: "{norm_path(self.filePath)}".')
-
-    def _get_list(self, text):
-        """Convert a string into a list.
-        
-        Positional arguments:
-            text -- string containing comma-separated substrings.
-        
-        Split a sequence of comma separated strings into a list of strings.
-        Remove leading and trailing spaces, if any.
-        Return a list of strings.
-        """
-        elements = []
-        tempList = text.split(',')
-        for element in tempList:
-            elements.append(element.strip())
-        return elements
+        reader = OdsParser()
+        self._rows = reader.get_rows(self.filePath, cellsPerRow)
+        for row in self._rows:
+            if len(row) != cellsPerRow:
+                print(row)
+                print(len(row), cellsPerRow)
+                raise Error(f'{_("Wrong table structure")}.')
 
 
-class CsvSceneList(CsvFile):
-    """csv file representation of a yWriter project's scenes table. 
+
+class OdsRSceneList(OdsReader):
+    """ODS scene list reader. 
     
     Public methods:
         read() -- parse the file and get the instance variables.
@@ -5196,8 +5530,8 @@ class CsvSceneList(CsvFile):
                 # Can't write back item IDs, because self.items is None.
 
 
-class CsvCharList(CsvFile):
-    """csv file representation of a yWriter project's characters table. 
+class OdsRCharList(OdsReader):
+    """ODS character list reader. 
     
     Public methods:
         read() -- parse the file and get the instance variables.
@@ -5243,8 +5577,8 @@ class CsvCharList(CsvFile):
                     self.novel.characters[crId].notes = self._convert_to_yw(cells[9])
 
 
-class CsvLocList(CsvFile):
-    """csv file representation of a yWriter project's locations table. 
+class OdsRLocList(OdsReader):
+    """ODS location list reader. 
     
     Public methods:
         read() -- parse the file and get the instance variables.
@@ -5278,8 +5612,8 @@ class CsvLocList(CsvFile):
                     self.novel.locations[lcId].tags = string_to_list(cells[4], divider=self._DIVIDER)
 
 
-class CsvItemList(CsvFile):
-    """csv file representation of a yWriter project's items table. 
+class OdsRItemList(OdsReader):
+    """ODS item list reader.
     
     Public methods:
         read() -- parse the file and get the instance variables.
@@ -5327,20 +5661,20 @@ class Yw7Importer(YwCnvFf):
                         and HtmlOutline - can be exported to a new yWriter project.
     """
     EXPORT_SOURCE_CLASSES = [Yw7File]
-    IMPORT_SOURCE_CLASSES = [HtmlProof,
-                             HtmlManuscript,
-                             HtmlSceneDesc,
-                             HtmlChapterDesc,
-                             HtmlPartDesc,
-                             HtmlCharacters,
-                             HtmlItems,
-                             HtmlLocations,
-                             HtmlNotes,
-                             HtmlTodo,
-                             CsvCharList,
-                             CsvLocList,
-                             CsvItemList,
-                             CsvSceneList,
+    IMPORT_SOURCE_CLASSES = [OdtRProof,
+                             OdtRManuscript,
+                             OdtRSceneDesc,
+                             OdtRChapterDesc,
+                             OdtRPartDesc,
+                             OdtRCharacters,
+                             OdtRItems,
+                             OdtRLocations,
+                             OdtRNotes,
+                             OdtRTodo,
+                             OdsRCharList,
+                             OdsRLocList,
+                             OdsRItemList,
+                             OdsRSceneList,
                              ]
     IMPORT_TARGET_CLASSES = [Yw7File]
     CREATE_SOURCE_CLASSES = []
@@ -5382,80 +5716,20 @@ class UiUno(Ui):
 
 def export_yw():
     """Export the currently loaded document to a yWriter 7 project."""
+    ThisComponent = XSCRIPTCONTEXT.getDocument()
 
     # Get document's filename
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
-
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext(
-        "com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
+    # document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    document = ThisComponent.CurrentController.Frame
     documentPath = XSCRIPTCONTEXT.getDocument().getURL()
     # documentPath = ThisComponent.getURL()
 
-    args1 = []
-    args1.append(PropertyValue())
-    args1.append(PropertyValue())
-    # dim args1(1) as new com.sun.star.beans.PropertyValue
+    # Save the document.
+    ThisComponent.store()
 
-    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
-        odtPath = documentPath.replace('.html', '.odt')
-        htmlPath = documentPath.replace('.odt', '.html')
-
-        # Save document in HTML format
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = htmlPath
-        # args1(0).Value = htmlPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'HTML (StarWriter)'
-        # args1(1).Value = "HTML (StarWriter)"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odtPath
-        # args1(0).Value = odtPath
-        args1[1].Value = 'writer8'
-        # args1(1).Value = "writer8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(htmlPath)
-    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
-        odsPath = documentPath.replace('.csv', '.ods')
-        csvPath = documentPath.replace('.ods', '.csv')
-
-        # Save document in csv format
-        args1.append(PropertyValue())
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = csvPath
-        # args1(0).Value = csvPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'Text - txt - csv (StarCalc)'
-        # args1(1).Value = "Text - txt - csv (StarCalc)"
-        args1[2].Name = "FilterOptions"
-        # args1(2).Name = "FilterOptions"
-        args1[2].Value = "44,34,76,1,,0,true,true,true"
-        # args1(2).Value = "44,34,76,1,,0,true,true,true"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odsPath
-        # args1(0).Value = odsPath
-        args1[1].Value = 'calc8'
-        # args1(1).Value = "calc8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(csvPath)
+    # Convert the saved document.
+    if documentPath.endswith('.odt') or documentPath.endswith('.ods'):
+        targetPath = uno.fileUrlToSystemPath(documentPath)
     else:
         msgbox(f'{_("File type is not supported")}: "{norm_path(documentPath)}".', type_msg=ERRORBOX)
         return

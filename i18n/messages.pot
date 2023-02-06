@@ -3,8 +3,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.1.1\n"
-"POT-Creation-Date: 2023-01-01 09:51:45\n"
+"Project-Id-Version: 1.2.0\n"
+"POT-Creation-Date: 2023-02-06 15:58:03\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: LANGUAGE\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Cannot overwrite file"
 msgstr ""
 
-msgid "Cannot parse File"
+msgid "Cannot read file"
 msgstr ""
 
 msgid "Cannot write file"
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Work in progress"
 msgstr ""
 
-msgid "Wrong csv structure"
+msgid "Wrong table structure"
 msgstr ""
 
 msgid "yWriter 7 project"
