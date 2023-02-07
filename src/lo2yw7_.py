@@ -27,7 +27,8 @@ def export_yw():
     # documentPath = ThisComponent.getURL()
 
     # Save the document.
-    ThisComponent.store()
+    if ThisComponent.isModified():
+        ThisComponent.store()
 
     # Convert the saved document.
     if documentPath.endswith('.odt') or documentPath.endswith('.ods'):

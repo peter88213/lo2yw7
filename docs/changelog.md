@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.2
+
+- When exporting to yw7, save the document only if modified.
+
+Based on PyWriter v12.1.0
+
 ### v1.2.1
 
 - Refactor: Move the formatting macros to the yw_format module.

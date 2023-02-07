@@ -1,6 +1,6 @@
 """Convert odt/ods to yw7. 
 
-Version 1.2.1
+Version 1.2.2
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -5691,7 +5691,8 @@ def export_yw():
     # documentPath = ThisComponent.getURL()
 
     # Save the document.
-    ThisComponent.store()
+    if ThisComponent.isModified():
+        ThisComponent.store()
 
     # Convert the saved document.
     if documentPath.endswith('.odt') or documentPath.endswith('.ods'):
