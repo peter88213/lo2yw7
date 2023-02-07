@@ -1,8 +1,8 @@
-"""Convert html/csv to yw7. 
+"""Convert odt/ods to yw7. 
 
-Version 1.2.0
+Version 1.2.1
 Requires Python 3.6+
-Copyright (c) 2022 Peter Triesberger
+Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
@@ -551,7 +551,6 @@ class YwCnvUi:
                 self.newFile = target.filePath
             finally:
                 self.ui.set_info_how(message)
-                self._delete_tempfile(source.filePath)
 
     def import_to_yw(self, source, target):
         """Convert from any file format to yWriter project.
@@ -590,7 +589,6 @@ class YwCnvUi:
                 self.ui.show_warning(_('New scenes created during conversion.'))
         finally:
             self.ui.set_info_how(message)
-            self._delete_tempfile(source.filePath)
 
     def _confirm_overwrite(self, filePath):
         """Return boolean permission to overwrite the target file.
@@ -601,25 +599,6 @@ class YwCnvUi:
         Overrides the superclass method.
         """
         return self.ui.ask_yes_no(_('Overwrite existing file "{}"?').format(norm_path(filePath)))
-
-    def _delete_tempfile(self, filePath):
-        """Delete filePath if it is a temporary file no longer needed."""
-        if filePath.endswith('.html'):
-            # Might it be a temporary text document?
-            if os.path.isfile(filePath.replace('.html', '.odt')):
-                # Does a corresponding Office document exist?
-                try:
-                    os.remove(filePath)
-                except:
-                    pass
-        elif filePath.endswith('.csv'):
-            # Might it be a temporary spreadsheet document?
-            if os.path.isfile(filePath.replace('.csv', '.ods')):
-                # Does a corresponding Office document exist?
-                try:
-                    os.remove(filePath)
-                except:
-                    pass
 
     def _open_newFile(self):
         """Open the converted file for editing and exit the converter script."""
@@ -1291,19 +1270,28 @@ class File:
         projectName -- str: URL-coded file name without suffix and extension. 
         projectPath -- str: URL-coded path to the project directory. 
         filePath -- str: path to the file (property with getter and setter). 
+
+    Public class constants:
+        PRJ_KWVAR -- List of the names of the project keyword variables.
+        CHP_KWVAR -- List of the names of the chapter keyword variables.
+        SCN_KWVAR -- List of the names of the scene keyword variables.
+        CRT_KWVAR -- List of the names of the character keyword variables.
+        LOC_KWVAR -- List of the names of the location keyword variables.
+        ITM_KWVAR -- List of the names of the item keyword variables.
+        PNT_KWVAR -- List of the names of the project note keyword variables.
     """
     DESCRIPTION = _('File')
     EXTENSION = None
     SUFFIX = None
     # To be extended by subclass methods.
 
-    _PRJ_KWVAR = []
-    _CHP_KWVAR = []
-    _SCN_KWVAR = []
-    _CRT_KWVAR = []
-    _LOC_KWVAR = []
-    _ITM_KWVAR = []
-    _PNT_KWVAR = []
+    PRJ_KWVAR = []
+    CHP_KWVAR = []
+    SCN_KWVAR = []
+    CRT_KWVAR = []
+    LOC_KWVAR = []
+    ITM_KWVAR = []
+    PNT_KWVAR = []
     # Keyword variables for custom fields in the .yw7 XML file.
 
     def __init__(self, filePath, **kwargs):
@@ -1442,6 +1430,10 @@ class Yw7File(File):
     Public instance variables:
         tree -- xml element tree of the yWriter project
         scenesSplit -- bool: True, if a scene or chapter is split during merging.
+        
+    Public class constants:
+        PRJ_KWVAR -- List of the names of the project keyword variables.
+        SCN_KWVAR -- List of the names of the scene keyword variables.
     """
     DESCRIPTION = _('yWriter 7 project')
     EXTENSION = '.yw7'
@@ -1454,11 +1446,11 @@ class Yw7File(File):
     # Names of xml elements containing CDATA.
     # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
 
-    _PRJ_KWVAR = [
+    PRJ_KWVAR = [
         'Field_LanguageCode',
         'Field_CountryCode',
         ]
-    _SCN_KWVAR = [
+    SCN_KWVAR = [
         'Field_SceneArcs',
         'Field_SceneStyle',
         ]
@@ -1526,12 +1518,12 @@ class Yw7File(File):
                     self.novel.wordTarget = 0
 
             #--- Initialize custom keyword variables.
-            for fieldName in self._PRJ_KWVAR:
+            for fieldName in self.PRJ_KWVAR:
                 self.novel.kwVar[fieldName] = None
 
             #--- Read project custom fields.
             for prjFields in prj.findall('Fields'):
-                for fieldName in self._PRJ_KWVAR:
+                for fieldName in self.PRJ_KWVAR:
                     field = prjFields.find(fieldName)
                     if field is not None:
                         self.novel.kwVar[fieldName] = field.text
@@ -1569,12 +1561,12 @@ class Yw7File(File):
                         self.novel.locations[lcId].tags = self._strip_spaces(tags)
 
                 #--- Initialize custom keyword variables.
-                for fieldName in self._LOC_KWVAR:
+                for fieldName in self.LOC_KWVAR:
                     self.novel.locations[lcId].kwVar[fieldName] = None
 
                 #--- Read location custom fields.
                 for lcFields in loc.findall('Fields'):
-                    for fieldName in self._LOC_KWVAR:
+                    for fieldName in self.LOC_KWVAR:
                         field = lcFields.find(fieldName)
                         if field is not None:
                             self.novel.locations[lcId].kwVar[fieldName] = field.text
@@ -1606,12 +1598,12 @@ class Yw7File(File):
                         self.novel.items[itId].tags = self._strip_spaces(tags)
 
                 #--- Initialize custom keyword variables.
-                for fieldName in self._ITM_KWVAR:
+                for fieldName in self.ITM_KWVAR:
                     self.novel.items[itId].kwVar[fieldName] = None
 
                 #--- Read item custom fields.
                 for itFields in itm.findall('Fields'):
-                    for fieldName in self._ITM_KWVAR:
+                    for fieldName in self.ITM_KWVAR:
                         field = itFields.find(fieldName)
                         if field is not None:
                             self.novel.items[itId].kwVar[fieldName] = field.text
@@ -1660,12 +1652,12 @@ class Yw7File(File):
                     self.novel.characters[crId].isMajor = False
 
                 #--- Initialize custom keyword variables.
-                for fieldName in self._CRT_KWVAR:
+                for fieldName in self.CRT_KWVAR:
                     self.novel.characters[crId].kwVar[fieldName] = None
 
                 #--- Read character custom fields.
                 for crFields in crt.findall('Fields'):
-                    for fieldName in self._CRT_KWVAR:
+                    for fieldName in self.CRT_KWVAR:
                         field = crFields.find(fieldName)
                         if field is not None:
                             self.novel.characters[crId].kwVar[fieldName] = field.text
@@ -1687,7 +1679,7 @@ class Yw7File(File):
                             self.novel.projectNotes[pnId].desc = pnt.find('Desc').text
 
                     #--- Initialize project note custom fields.
-                    for fieldName in self._PNT_KWVAR:
+                    for fieldName in self.PNT_KWVAR:
                         self.novel.projectNotes[pnId].kwVar[fieldName] = None
 
                     #--- Read project note custom fields.
@@ -1756,12 +1748,12 @@ class Yw7File(File):
                 self.novel.scenes[scId].scType = 0
 
                 #--- Initialize custom keyword variables.
-                for fieldName in self._SCN_KWVAR:
+                for fieldName in self.SCN_KWVAR:
                     self.novel.scenes[scId].kwVar[fieldName] = None
 
                 for scFields in scn.findall('Fields'):
                     #--- Read scene custom fields.
-                    for fieldName in self._SCN_KWVAR:
+                    for fieldName in self.SCN_KWVAR:
                         field = scFields.find(fieldName)
                         if field is not None:
                             self.novel.scenes[scId].kwVar[fieldName] = field.text
@@ -1969,7 +1961,7 @@ class Yw7File(File):
                         self.novel.chapters[chId].suppressChapterTitle = True
 
                 #--- Initialize custom keyword variables.
-                for fieldName in self._CHP_KWVAR:
+                for fieldName in self.CHP_KWVAR:
                     self.novel.chapters[chId].kwVar[fieldName] = None
 
                 #--- Read chapter fields.
@@ -1987,7 +1979,7 @@ class Yw7File(File):
                             self.novel.chapters[chId].suppressChapterBreak = True
 
                     #--- Read chapter custom fields.
-                    for fieldName in self._CHP_KWVAR:
+                    for fieldName in self.CHP_KWVAR:
                         field = chFields.find(fieldName)
                         if field is not None:
                             self.novel.chapters[chId].kwVar[fieldName] = field.text
@@ -2001,7 +1993,7 @@ class Yw7File(File):
                             self.novel.chapters[chId].srtScenes.append(scId)
 
         #--- Begin reading.
-        for field in self._PRJ_KWVAR:
+        for field in self.PRJ_KWVAR:
             self.novel.kwVar[field] = None
 
         if self.is_locked():
@@ -2165,7 +2157,7 @@ class Yw7File(File):
                 ET.SubElement(scFields, 'Field_SceneType').text = ySceneType
 
             #--- Write scene custom fields.
-            for field in self._SCN_KWVAR:
+            for field in self.SCN_KWVAR:
                 if self.novel.scenes[scId].kwVar.get(field, None):
                     if scFields is None:
                         scFields = ET.SubElement(xmlScn, 'Fields')
@@ -2499,7 +2491,7 @@ class Yw7File(File):
                     chFields.remove(chFields.find('Field_IsTrash'))
 
             #--- Write chapter custom fields.
-            for field in self._CHP_KWVAR:
+            for field in self.CHP_KWVAR:
                 if prjChp.kwVar.get(field, None):
                     if chFields is None:
                         chFields = ET.Element('Fields')
@@ -2563,7 +2555,7 @@ class Yw7File(File):
 
             #--- Write location custom fields.
             lcFields = xmlLoc.find('Fields')
-            for field in self._LOC_KWVAR:
+            for field in self.LOC_KWVAR:
                 if self.novel.locations[lcId].kwVar.get(field, None):
                     if lcFields is None:
                         lcFields = ET.SubElement(xmlLoc, 'Fields')
@@ -2618,7 +2610,7 @@ class Yw7File(File):
 
             #--- Write item custom fields.
             itFields = xmlItm.find('Fields')
-            for field in self._ITM_KWVAR:
+            for field in self.ITM_KWVAR:
                 if self.novel.items[itId].kwVar.get(field, None):
                     if itFields is None:
                         itFields = ET.SubElement(xmlItm, 'Fields')
@@ -2667,7 +2659,7 @@ class Yw7File(File):
 
             #--- Write character custom fields.
             crFields = xmlCrt.find('Fields')
-            for field in self._CRT_KWVAR:
+            for field in self.CRT_KWVAR:
                 if self.novel.characters[crId].kwVar.get(field, None):
                     if crFields is None:
                         crFields = ET.SubElement(xmlCrt, 'Fields')
@@ -2756,7 +2748,7 @@ class Yw7File(File):
             self.novel.kwVar['Field_CountryCode'] = None
 
             prjFields = xmlPrj.find('Fields')
-            for field in self._PRJ_KWVAR:
+            for field in self.PRJ_KWVAR:
                 setting = self.novel.kwVar.get(field, None)
                 if setting:
                     if prjFields is None:
@@ -3032,31 +3024,6 @@ class Yw7File(File):
         for line in lines:
             stripped.append(line.strip())
         return stripped
-
-    def reset_custom_variables(self):
-        """Set custom keyword variables to an empty string.
-        
-        Thus the write() method will remove the associated custom fields
-        from the .yw7 XML file. 
-        Return True, if a keyword variable has changed (i.e information is lost).
-        """
-        hasChanged = False
-        for field in self._PRJ_KWVAR:
-            if self.novel.kwVar.get(field, None):
-                self.novel.kwVar[field] = ''
-                hasChanged = True
-        for chId in self.novel.chapters:
-            # Deliberatey not iterate srtChapters: make sure to get all chapters.
-            for field in self._CHP_KWVAR:
-                if self.novel.chapters[chId].kwVar.get(field, None):
-                    self.novel.chapters[chId].kwVar[field] = ''
-                    hasChanged = True
-        for scId in self.novel.scenes:
-            for field in self._SCN_KWVAR:
-                if self.novel.scenes[scId].kwVar.get(field, None):
-                    self.novel.scenes[scId].kwVar[field] = ''
-                    hasChanged = True
-        return hasChanged
 
     def adjust_scene_types(self):
         """Make sure that scenes in non-"Normal" chapters inherit the chapter's type."""
@@ -5713,7 +5680,6 @@ class UiUno(Ui):
 
 
 
-
 def export_yw():
     """Export the currently loaded document to a yWriter 7 project."""
     ThisComponent = XSCRIPTCONTEXT.getDocument()
@@ -5739,384 +5705,3 @@ def export_yw():
     kwargs = {'suffix': None}
     converter.run(targetPath, **kwargs)
 
-
-def to_blank_lines():
-    """Replace scene dividers with blank lines.
-
-    Replace the three-lines "* * *" scene dividers with single blank lines. 
-    Change the style of the scene-dividing paragraphs from  _Heading 4_  to  _Heading 5_.
-    """
-    pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
-    # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext(
-        "com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
-    #--- Save cursor position.
-    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
-    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
-    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
-    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
-
-    #--- Replace "Heading 4" by "Heading 5".
-    args1 = []
-    for __ in range(19):
-        args1.append(PropertyValue())
-    # dim args1(18) as new com.sun.star.beans.PropertyValue
-    args1[0].Name = "SearchItem.StyleFamily"
-    args1[0].Value = 2
-    args1[1].Name = "SearchItem.CellType"
-    args1[1].Value = 0
-    args1[2].Name = "SearchItem.RowDirection"
-    args1[2].Value = True
-    args1[3].Name = "SearchItem.AllTables"
-    args1[3].Value = False
-    args1[4].Name = "SearchItem.Backward"
-    args1[4].Value = False
-    args1[5].Name = "SearchItem.Pattern"
-    args1[5].Value = True
-    args1[6].Name = "SearchItem.Content"
-    args1[6].Value = False
-    args1[7].Name = "SearchItem.AsianOptions"
-    args1[7].Value = False
-    args1[8].Name = "SearchItem.AlgorithmType"
-    args1[8].Value = 0
-    args1[9].Name = "SearchItem.SearchFlags"
-    args1[9].Value = 65536
-    args1[10].Name = "SearchItem.SearchString"
-    args1[10].Value = pStyles.getByName("Heading 4").DisplayName
-    args1[11].Name = "SearchItem.ReplaceString"
-    args1[11].Value = pStyles.getByName("Heading 5").DisplayName
-    args1[12].Name = "SearchItem.Locale"
-    args1[12].Value = 255
-    args1[13].Name = "SearchItem.ChangedChars"
-    args1[13].Value = 2
-    args1[14].Name = "SearchItem.DeletedChars"
-    args1[14].Value = 2
-    args1[15].Name = "SearchItem.InsertedChars"
-    args1[15].Value = 2
-    args1[16].Name = "SearchItem.TransliterateFlags"
-    args1[16].Value = 1280
-    args1[17].Name = "SearchItem.Command"
-    args1[17].Value = 3
-    args1[18].Name = "Quiet"
-    args1[18].Value = True
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
-    #--- Find all "Heading 5".
-    args2 = []
-    for __ in range(19):
-        args2.append(PropertyValue())
-    # dim args2(18) as new com.sun.star.beans.PropertyValue
-    args2[0].Name = "SearchItem.StyleFamily"
-    args2[0].Value = 2
-    args2[1].Name = "SearchItem.CellType"
-    args2[1].Value = 0
-    args2[2].Name = "SearchItem.RowDirection"
-    args2[2].Value = True
-    args2[3].Name = "SearchItem.AllTables"
-    args2[3].Value = False
-    args2[4].Name = "SearchItem.Backward"
-    args2[4].Value = False
-    args2[5].Name = "SearchItem.Pattern"
-    args2[5].Value = True
-    args2[6].Name = "SearchItem.Content"
-    args2[6].Value = False
-    args2[7].Name = "SearchItem.AsianOptions"
-    args2[7].Value = False
-    args2[8].Name = "SearchItem.AlgorithmType"
-    args2[8].Value = 0
-    args2[9].Name = "SearchItem.SearchFlags"
-    args2[9].Value = 65536
-    args2[10].Name = "SearchItem.SearchString"
-    args2[10].Value = pStyles.getByName("Heading 5").DisplayName
-    args2[11].Name = "SearchItem.ReplaceString"
-    args2[11].Value = pStyles.getByName("Heading 5").DisplayName
-    args2[12].Name = "SearchItem.Locale"
-    args2[12].Value = 255
-    args2[13].Name = "SearchItem.ChangedChars"
-    args2[13].Value = 2
-    args2[14].Name = "SearchItem.DeletedChars"
-    args2[14].Value = 2
-    args2[15].Name = "SearchItem.InsertedChars"
-    args2[15].Value = 2
-    args2[16].Name = "SearchItem.TransliterateFlags"
-    args2[16].Value = 1280
-    args2[17].Name = "SearchItem.Command"
-    args2[17].Value = 1
-    args2[18].Name = "Quiet"
-    args2[18].Value = True
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args2)
-
-    #--- Delete scene dividers.
-    args3 = []
-    for __ in range(19):
-        args3.append(PropertyValue())
-    # dim args3(18) as new com.sun.star.beans.PropertyValue
-    args3[0].Name = "SearchItem.StyleFamily"
-    args3[0].Value = 2
-    args3[1].Name = "SearchItem.CellType"
-    args3[1].Value = 0
-    args3[2].Name = "SearchItem.RowDirection"
-    args3[2].Value = True
-    args3[3].Name = "SearchItem.AllTables"
-    args3[3].Value = False
-    args3[4].Name = "SearchItem.Backward"
-    args3[4].Value = False
-    args3[5].Name = "SearchItem.Pattern"
-    args3[5].Value = False
-    args3[6].Name = "SearchItem.Content"
-    args3[6].Value = False
-    args3[7].Name = "SearchItem.AsianOptions"
-    args3[7].Value = False
-    args3[8].Name = "SearchItem.AlgorithmType"
-    args3[8].Value = 0
-    args3[9].Name = "SearchItem.SearchFlags"
-    args3[9].Value = 71680
-    args3[10].Name = "SearchItem.SearchString"
-    args3[10].Value = "* * *"
-    args3[11].Name = "SearchItem.ReplaceString"
-    args3[11].Value = ""
-    args3[12].Name = "SearchItem.Locale"
-    args3[12].Value = 255
-    args3[13].Name = "SearchItem.ChangedChars"
-    args3[13].Value = 2
-    args3[14].Name = "SearchItem.DeletedChars"
-    args3[14].Value = 2
-    args3[15].Name = "SearchItem.InsertedChars"
-    args3[15].Value = 2
-    args3[16].Name = "SearchItem.TransliterateFlags"
-    args3[16].Value = 1280
-    args3[17].Name = "SearchItem.Command"
-    args3[17].Value = 3
-    args3[18].Name = "Quiet"
-    args3[18].Value = True
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
-
-    #--- Reset search options with a dummy search.
-    args3[9].Value = 65536
-    args3[10].Value = "#"
-    args3[17].Value = 1
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
-
-    #--- Restore cursor position.
-    oViewCursor.gotoRange(oSaveCursor, False)
-
-
-def indent_paragraphs():
-    """Indent paragraphs that start with '> '.
-
-    Select all paragraphs that start with '> ' 
-    and change their paragraph style to _Quotations_.
-    """
-    pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
-    # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext("com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
-    #--- Save cursor position.
-    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
-    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
-    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
-    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
-
-    #--- Assign all paragraphs beginning with '> ' the 'Quotations' style.
-    args1 = []
-    for __ in range(19):
-        args1.append(PropertyValue())
-    # dim args1(18) as new com.sun.star.beans.PropertyValue
-    args1[0].Name = "SearchItem.StyleFamily"
-    args1[0].Value = 2
-    args1[1].Name = "SearchItem.CellType"
-    args1[1].Value = 0
-    args1[2].Name = "SearchItem.RowDirection"
-    args1[2].Value = True
-    args1[3].Name = "SearchItem.AllTables"
-    args1[3].Value = False
-    args1[4].Name = "SearchItem.Backward"
-    args1[4].Value = False
-    args1[5].Name = "SearchItem.Pattern"
-    args1[5].Value = False
-    args1[6].Name = "SearchItem.Content"
-    args1[6].Value = False
-    args1[7].Name = "SearchItem.AsianOptions"
-    args1[7].Value = False
-    args1[8].Name = "SearchItem.AlgorithmType"
-    args1[8].Value = 1
-    args1[9].Name = "SearchItem.SearchFlags"
-    args1[9].Value = 65536
-    args1[10].Name = "SearchItem.SearchString"
-    args1[10].Value = "^> "
-    args1[11].Name = "SearchItem.ReplaceString"
-    args1[11].Value = ""
-    args1[12].Name = "SearchItem.Locale"
-    args1[12].Value = 255
-    args1[13].Name = "SearchItem.ChangedChars"
-    args1[13].Value = 2
-    args1[14].Name = "SearchItem.DeletedChars"
-    args1[14].Value = 2
-    args1[15].Name = "SearchItem.InsertedChars"
-    args1[15].Value = 2
-    args1[16].Name = "SearchItem.TransliterateFlags"
-    args1[16].Value = 1280
-    args1[17].Name = "SearchItem.Command"
-    args1[17].Value = 1
-    args1[18].Name = "Quiet"
-    args1[18].Value = True
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-    if is_anything_selected(XSCRIPTCONTEXT.getDocument()):
-        args2 = []
-        for __ in range(2):
-            args2.append(PropertyValue())
-        # dim args2(1) as new com.sun.star.beans.PropertyValue
-        args2[0].Name = "Template"
-        args2[0].Value = pStyles.getByName("Quotations").DisplayName
-        args2[1].Name = "Family"
-        args2[1].Value = 2
-        dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
-
-        #--- Delete the markup.
-        args1[17].Value = 3
-        dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
-    #--- Reset search options with a dummy search.
-    args1[8].Value = 0
-    args1[10].Value = "#"
-    args1[17].Value = 1
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
-    #--- Restore cursor position.
-    oViewCursor.gotoRange(oSaveCursor, False)
-
-
-def replace_bullets():
-    """Replace list strokes with bullets.
-
-    Select all paragraphs that start with '- ' 
-    and apply a list paragraph style.
-    """
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext("com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
-    #--- Save cursor position.
-    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
-    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
-    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
-    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
-
-    #--- Find all list strokes.
-    args1 = []
-    for __ in range(19):
-        args1.append(PropertyValue())
-    # dim args1(18) as new com.sun.star.beans.PropertyValue
-    args1[0].Name = "SearchItem.StyleFamily"
-    args1[0].Value = 2
-    args1[1].Name = "SearchItem.CellType"
-    args1[1].Value = 0
-    args1[2].Name = "SearchItem.RowDirection"
-    args1[2].Value = True
-    args1[3].Name = "SearchItem.AllTables"
-    args1[3].Value = False
-    args1[4].Name = "SearchItem.Backward"
-    args1[4].Value = False
-    args1[5].Name = "SearchItem.Pattern"
-    args1[5].Value = False
-    args1[6].Name = "SearchItem.Content"
-    args1[6].Value = False
-    args1[7].Name = "SearchItem.AsianOptions"
-    args1[7].Value = False
-    args1[8].Name = "SearchItem.AlgorithmType"
-    args1[8].Value = 1
-    args1[9].Name = "SearchItem.SearchFlags"
-    args1[9].Value = 65536
-    args1[10].Name = "SearchItem.SearchString"
-    args1[10].Value = "^- "
-    args1[11].Name = "SearchItem.ReplaceString"
-    args1[11].Value = ""
-    args1[12].Name = "SearchItem.Locale"
-    args1[12].Value = 255
-    args1[13].Name = "SearchItem.ChangedChars"
-    args1[13].Value = 2
-    args1[14].Name = "SearchItem.DeletedChars"
-    args1[14].Value = 2
-    args1[15].Name = "SearchItem.InsertedChars"
-    args1[15].Value = 2
-    args1[16].Name = "SearchItem.TransliterateFlags"
-    args1[16].Value = 1280
-    args1[17].Name = "SearchItem.Command"
-    args1[17].Value = 1
-    args1[18].Name = "Quiet"
-    args1[18].Value = True
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-    if is_anything_selected(XSCRIPTCONTEXT.getDocument()):
-        #--- Apply list bullets to search result.
-        args2 = []
-        for __ in range(1):
-            args2.append(PropertyValue())
-        # dim args2(0) as new com.sun.star.beans.PropertyValue
-        args2[0].Name = "On"
-        args2[0].Value = True
-        dispatcher.executeDispatch(document, ".uno:DefaultBullet", "", 0, args2)
-
-        #--- Delete list strokes.
-        dispatcher.executeDispatch(document, ".uno:Delete", "", 0, [])
-        # dispatcher.executeDispatch(document, ".uno:Delete", "", 0, Array())
-
-    #--- Reset search options with a dummy search.
-    args1[8].Value = 0
-    args1[10].Value = "#"
-    args1[17].Value = 1
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
-    #--- Restore cursor position.
-    oViewCursor.gotoRange(oSaveCursor, False)
-
-
-def is_anything_selected(oDoc):
-    """Return True if anything is selected.
-    
-    Positional arguments:
-        oDoc -- ThisComponent
-    
-    Code example by Andrew D. Pitonyak
-    OpenOffice.org Macros Explained
-    OOME Third Edition
-    """
-    # Assume nothing is selected
-    IsAnythingSelected = False
-    if oDoc is None:
-        return False
-
-    # The current selection in the current controller.
-    # If there is no current controller, it returns NULL.
-    oSelections = oDoc.getCurrentSelection()
-    if oSelections is None:
-        return False
-
-    if oSelections.getCount() == 0:
-        return False
-
-    if oSelections.getCount() > 1:
-        # There is more than one selection so return True
-        IsAnythingSelected = True
-    else:
-        # There is only one selection so obtain the first selection
-        oSel = oSelections.getByIndex(0)
-        # Create a text cursor that covers the range and then see if it is
-        # collapsed.
-        oCursor = oDoc.Text.createTextCursorByRange(oSel)
-        if not oCursor.isCollapsed():
-            IsAnythingSelected = True
-    return IsAnythingSelected

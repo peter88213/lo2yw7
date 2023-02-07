@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.1
+
+- Refactor: Move the formatting macros to the yw_format module.
+
+Based on PyWriter v12.1.0
+
 ### v1.2.0
 
 - Speed up the process by converting the ODS document instead of an intermediate HTML file. 
