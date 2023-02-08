@@ -16,14 +16,18 @@ from pywriter.converter.yw7_importer import Yw7Importer
 from lo2yw7lib.ui_uno import UiUno
 
 
-def export_yw():
-    """Export the currently loaded document to a yWriter 7 project."""
-    ThisComponent = XSCRIPTCONTEXT.getDocument()
+def export_yw(context):
+    """Export the currently loaded document to a yWriter 7 project.
+    
+    Positional arguments:
+        context -- XSCRIPTCONTEXT    
+    """
+    ThisComponent = context.getDocument()
 
     # Get document's filename
-    # document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document = context.getDocument().CurrentController.Frame
     document = ThisComponent.CurrentController.Frame
-    documentPath = XSCRIPTCONTEXT.getDocument().getURL()
+    documentPath = context.getDocument().getURL()
     # documentPath = ThisComponent.getURL()
 
     # Save the document.
