@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.4
+
+- Refactor: Make the structure same as oo2yw7.
+
+Based on PyWriter v12.1.0
+
 ### v1.2.3
 
 - Speed up execution by using a starter script.

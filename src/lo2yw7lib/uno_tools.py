@@ -20,7 +20,11 @@ def create_instance(name, with_context=False):
     return instance
 
 
-def msgbox(message, title='yWriter import/export', buttons=BUTTONS_OK, type_msg=INFOBOX):
+from pywriter.pywriter_globals import *
+# The setup script will patch the pywriter_globals code, using constants defined above.
+
+
+def msgbox(message, title=_('Export to yw7'), buttons=BUTTONS_OK, type_msg=INFOBOX):
     """ Create message box
         type_msg: MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
@@ -36,12 +40,3 @@ def msgbox(message, title='yWriter import/export', buttons=BUTTONS_OK, type_msg=
     mb = toolkit.createMessageBox(parent, type_msg, buttons, title, str(message))
     return mb.execute()
 
-
-class Stub():
-
-    def dummy(self):
-        pass
-
-
-if __name__ == '__main__':
-    XSCRIPTCONTEXT = Stub()
