@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.5
+
+- Improve error handling.
+
+Based on PyWriter v12.1.1
+
 ### v1.2.4
 
 - Refactor: Make the structure same as oo2yw7.
