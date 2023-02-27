@@ -18,5 +18,8 @@ def export_yw():
         thisComponent.store()
 
     documentUrl = thisComponent.getURL()
-    sourcePath = uno.fileUrlToSystemPath(documentUrl)
+    if documentUrl:
+        sourcePath = uno.fileUrlToSystemPath(documentUrl)
+    else:
+        sourcePath = ''
     lo2yw7.main(sourcePath)

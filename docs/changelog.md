@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.2.6
+
+- Fix a bug where an exception occurs when running the exporter with a new file.
+- Reduce the memory use by discarding the docstrings on building.
+
+Based on PyWriter v12.1.2
+
 ### v1.2.5
 
 - Improve error handling.
