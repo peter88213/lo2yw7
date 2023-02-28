@@ -22,19 +22,14 @@ For more information, see the [project homepage](https://peter88213.github.io/lo
 
 ### Conventions
 
-- Minimum Python version is 3.6. 
-- The Python **source code formatting** follows widely the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide, except the maximum line length, which is 120 characters here.
+See https://github.com/peter88213/PyWriter/blob/main/docs/conventions.md
 
-### Development tools
+## Development tools
 
-- [Python](https://python.org) version 3.10.
-- [Eclipse IDE](https://eclipse.org) with [PyDev](https://pydev.org) and [EGit](https://www.eclipse.org/egit/)
-- [Apache Ant](https://ant.apache.org/) for building the application script
+- [Python](https://python.org) version 3.9.
+- [Eclipse IDE](https://eclipse.org) with [PyDev](https://pydev.org) and *EGit*.
+- Apache Ant is used for building the application.
 - [pandoc](https://pandoc.org/) for building the HTML help pages
-
-### Documentation tools
-
-- [Eclipse Papyrus](https://www.eclipse.org/papyrus/) Modeling environment for creating Use Case and Class diagrams
 
 
 ## Credits
