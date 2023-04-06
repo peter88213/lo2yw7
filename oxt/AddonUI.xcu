@@ -48,8 +48,8 @@
                         <value/>
                      </prop>
                      <prop oor:name="Title" oor:type="xs:string">
-                        <value xml:lang="en">Export to yWriter</value>
-                        <value xml:lang="de">Zu yWriter exportieren</value>
+                        <value xml:lang="en">Export to yw7</value>
+                        <value xml:lang="de">Zu yw7 exportieren</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
                         <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|yw_cnv.py$export_yw?language=Python&amp;location=user:uno_packages</value>
@@ -153,8 +153,8 @@
                      <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
-                     <value xml:lang="en">Export to yWriter</value>
-                     <value xml:lang="de">Zu yWriter exportieren</value>
+                     <value xml:lang="en">Export to yw7</value>
+                     <value xml:lang="de">Zu yw7 exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:lo2yw7-L-0.99.0.oxt|lo2yw7|yw_cnv.py$export_yw?language=Python&amp;location=user:uno_packages</value>

@@ -1,6 +1,6 @@
 """Convert odt/ods to yw7. 
 
-Version 1.2.6
+Version 1.2.7
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -128,23 +128,167 @@ class Ui:
         self.infoHowText = message
 
     def start(self):
-        return
+        pass
 
     def show_warning(self, message):
-        return
+        pass
 import re
+from typing import Iterator, Pattern
 
 
 class BasicElement:
 
     def __init__(self):
-        self.title = None
+        self.title: str = None
 
-        self.desc = None
+        self.desc: str = None
 
-        self.kwVar = {}
+        self.kwVar: dict[str, str] = {}
 
-LANGUAGE_TAG = re.compile('\[lang=(.*?)\]')
+
+class Chapter(BasicElement):
+
+    def __init__(self):
+        super().__init__()
+
+        self.chLevel: int = None
+
+        self.chType: int = None
+
+        self.suppressChapterTitle: bool = None
+
+        self.isTrash: bool = None
+
+        self.suppressChapterBreak: bool = None
+
+        self.srtScenes: list[str] = []
+from typing import Pattern
+
+
+ADDITIONAL_WORD_LIMITS: Pattern = re.compile('--|—|–')
+
+NO_WORD_LIMITS: Pattern = re.compile('\[.+?\]|\/\*.+?\*\/|-|^\>', re.MULTILINE)
+
+NON_LETTERS: Pattern = re.compile('\[.+?\]|\/\*.+?\*\/|\n|\r')
+
+
+class Scene(BasicElement):
+    STATUS: set = (None, 'Outline', 'Draft', '1st Edit', '2nd Edit', 'Done')
+
+    ACTION_MARKER: str = 'A'
+    REACTION_MARKER: str = 'R'
+    NULL_DATE: str = '0001-01-01'
+    NULL_TIME: str = '00:00:00'
+
+    def __init__(self):
+        super().__init__()
+
+        self._sceneContent: str = None
+
+        self.wordCount: int = 0
+
+        self.letterCount: int = 0
+
+        self.scType: int = None
+
+        self.doNotExport: bool = None
+
+        self.status: int = None
+
+        self.notes: str = None
+
+        self.tags: list[str] = None
+
+        self.field1: str = None
+
+        self.field2: str = None
+
+        self.field3: str = None
+
+        self.field4: str = None
+
+        self.appendToPrev: bool = None
+
+        self.isReactionScene: bool = None
+
+        self.isSubPlot: bool = None
+
+        self.goal: str = None
+
+        self.conflict: str = None
+
+        self.outcome: str = None
+
+        self.characters: list[str] = None
+
+        self.locations: list[str] = None
+
+        self.items: list[str] = None
+
+        self.date: str = None
+
+        self.time: str = None
+
+        self.day: str = None
+
+        self.lastsMinutes: str = None
+
+        self.lastsHours: str = None
+
+        self.lastsDays: str = None
+
+        self.image: str = None
+
+        self.scnArcs: str = None
+
+        self.scnStyle: str = None
+
+    @property
+    def sceneContent(self) -> str:
+        return self._sceneContent
+
+    @sceneContent.setter
+    def sceneContent(self, text: str):
+        self._sceneContent = text
+        text = ADDITIONAL_WORD_LIMITS.sub(' ', text)
+        text = NO_WORD_LIMITS.sub('', text)
+        wordList = text.split()
+        self.wordCount = len(wordList)
+        text = NON_LETTERS.sub('', self._sceneContent)
+        self.letterCount = len(text)
+
+
+class WorldElement(BasicElement):
+
+    def __init__(self):
+        super().__init__()
+
+        self.image: str = None
+
+        self.tags: list[str] = None
+
+        self.aka: str = None
+
+
+
+class Character(WorldElement):
+    MAJOR_MARKER: str = 'Major'
+    MINOR_MARKER: str = 'Minor'
+
+    def __init__(self):
+        super().__init__()
+
+        self.notes: str = None
+
+        self.bio: str = None
+
+        self.goals: str = None
+
+        self.fullName: str = None
+
+        self.isMajor: bool = None
+
+LANGUAGE_TAG: Pattern = re.compile('\[lang=(.*?)\]')
 
 
 class Novel(BasicElement):
@@ -152,55 +296,55 @@ class Novel(BasicElement):
     def __init__(self):
         super().__init__()
 
-        self.authorName = None
+        self.authorName: str = None
 
-        self.authorBio = None
+        self.authorBio: str = None
 
-        self.fieldTitle1 = None
+        self.fieldTitle1: str = None
 
-        self.fieldTitle2 = None
+        self.fieldTitle2: str = None
 
-        self.fieldTitle3 = None
+        self.fieldTitle3: str = None
 
-        self.fieldTitle4 = None
+        self.fieldTitle4: str = None
 
-        self.wordTarget = None
+        self.wordTarget: int = None
 
-        self.wordCountStart = None
+        self.wordCountStart: int = None
 
-        self.wordTarget = None
+        self.wordTarget: int = None
 
-        self.chapters = {}
+        self.chapters: dict[str, Chapter] = {}
 
-        self.scenes = {}
+        self.scenes: dict[str, Scene] = {}
 
-        self.languages = None
+        self.languages: list[str] = None
 
-        self.srtChapters = []
+        self.srtChapters: list[str] = []
 
-        self.locations = {}
+        self.locations: dict[str, WorldElement] = {}
 
-        self.srtLocations = []
+        self.srtLocations: list[str] = []
 
-        self.items = {}
+        self.items: dict[str, WorldElement] = {}
 
-        self.srtItems = []
+        self.srtItems: list[str] = []
 
-        self.characters = {}
+        self.characters: dict[str, Character] = {}
 
-        self.srtCharacters = []
+        self.srtCharacters: list[str] = []
 
-        self.projectNotes = {}
+        self.projectNotes: dict[str, BasicElement] = {}
 
-        self.srtPrjNotes = []
+        self.srtPrjNotes: list[str] = []
 
-        self.languageCode = None
+        self.languageCode: str = None
 
-        self.countryCode = None
+        self.countryCode: str = None
 
     def get_languages(self):
 
-        def languages(text):
+        def languages(text: str) -> Iterator[str]:
             if text:
                 m = LANGUAGE_TAG.search(text)
                 while m:
@@ -443,148 +587,6 @@ import zipfile
 from html import unescape
 from datetime import datetime
 import xml.etree.ElementTree as ET
-
-
-class Chapter(BasicElement):
-
-    def __init__(self):
-        super().__init__()
-
-        self.chLevel = None
-
-        self.chType = None
-
-        self.suppressChapterTitle = None
-
-        self.isTrash = None
-
-        self.suppressChapterBreak = None
-
-        self.srtScenes = []
-
-
-ADDITIONAL_WORD_LIMITS = re.compile('--|—|–')
-
-NO_WORD_LIMITS = re.compile('\[.+?\]|\/\*.+?\*\/|-|^\>', re.MULTILINE)
-
-NON_LETTERS = re.compile('\[.+?\]|\/\*.+?\*\/|\n|\r')
-
-
-class Scene(BasicElement):
-    STATUS = (None, 'Outline', 'Draft', '1st Edit', '2nd Edit', 'Done')
-
-    ACTION_MARKER = 'A'
-    REACTION_MARKER = 'R'
-    NULL_DATE = '0001-01-01'
-    NULL_TIME = '00:00:00'
-
-    def __init__(self):
-        super().__init__()
-
-        self._sceneContent = None
-
-        self.wordCount = 0
-
-        self.letterCount = 0
-
-        self.scType = None
-
-        self.doNotExport = None
-
-        self.status = None
-
-        self.notes = None
-
-        self.tags = None
-
-        self.field1 = None
-
-        self.field2 = None
-
-        self.field3 = None
-
-        self.field4 = None
-
-        self.appendToPrev = None
-
-        self.isReactionScene = None
-
-        self.isSubPlot = None
-
-        self.goal = None
-
-        self.conflict = None
-
-        self.outcome = None
-
-        self.characters = None
-
-        self.locations = None
-
-        self.items = None
-
-        self.date = None
-
-        self.time = None
-
-        self.day = None
-
-        self.lastsMinutes = None
-
-        self.lastsHours = None
-
-        self.lastsDays = None
-
-        self.image = None
-
-        self.scnArcs = None
-
-        self.scnStyle = None
-
-    @property
-    def sceneContent(self):
-        return self._sceneContent
-
-    @sceneContent.setter
-    def sceneContent(self, text):
-        self._sceneContent = text
-        text = ADDITIONAL_WORD_LIMITS.sub(' ', text)
-        text = NO_WORD_LIMITS.sub('', text)
-        wordList = text.split()
-        self.wordCount = len(wordList)
-        text = NON_LETTERS.sub('', self._sceneContent)
-        self.letterCount = len(text)
-
-
-class WorldElement(BasicElement):
-
-    def __init__(self):
-        super().__init__()
-
-        self.image = None
-
-        self.tags = None
-
-        self.aka = None
-
-
-
-class Character(WorldElement):
-    MAJOR_MARKER = 'Major'
-    MINOR_MARKER = 'Minor'
-
-    def __init__(self):
-        super().__init__()
-
-        self.notes = None
-
-        self.bio = None
-
-        self.goals = None
-
-        self.fullName = None
-
-        self.isMajor = None
 from urllib.parse import quote
 
 
@@ -630,10 +632,10 @@ class File:
             self.projectName = quote(tail.replace(f'{suffix}{self.EXTENSION}', ''))
 
     def read(self):
-        raise Error(f'Read method is not implemented.')
+        raise NotImplementedError
 
     def write(self):
-        raise Error(f'Write method is not implemented.')
+        raise NotImplementedError
 
     def _convert_to_yw(self, text):
         return text.rstrip()
@@ -641,9 +643,10 @@ class File:
     def _convert_from_yw(self, text, quick=False):
         return text.rstrip()
 
+from typing import Iterable
 
 
-def create_id(elements):
+def create_id(elements: Iterable) -> str:
     i = 1
     while str(i) in elements:
         i += 1
@@ -2000,7 +2003,7 @@ class Yw7File(File):
         '''Postprocess an xml file created by ElementTree.
         
         Positional argument:
-            filePath -- str: path to xml file.
+            filePath: str -- path to xml file.
         
         Read the xml file, put a header on top, insert the missing CDATA tags,
         and replace xml entities by plain text (unescape). Overwrite the .yw7 xml file.
@@ -2218,16 +2221,16 @@ class OdtParser(sax.ContentHandler):
             self.handle_data(content)
 
     def handle_starttag(self, tag, attrs):
-        return
+        pass
 
     def handle_endtag(self, tag):
-        return
+        pass
 
     def handle_data(self, data):
-        return
+        pass
 
     def handle_comment(self, data):
-        return
+        pass
 
 
 
@@ -2286,15 +2289,15 @@ class OdtReader(File, OdtParser):
 
 
 class Splitter:
-    PART_SEPARATOR = '#'
-    CHAPTER_SEPARATOR = '##'
-    SCENE_SEPARATOR = '###'
-    DESC_SEPARATOR = '|'
-    _CLIP_TITLE = 20
+    PART_SEPARATOR: str = '#'
+    CHAPTER_SEPARATOR: str = '##'
+    SCENE_SEPARATOR: str = '###'
+    DESC_SEPARATOR: str = '|'
+    _CLIP_TITLE: int = 20
 
     def split_scenes(self, file):
 
-        def create_chapter(chapterId, title, desc, level):
+        def create_chapter(chapterId: str, title: str, desc: str, level: int):
             newChapter = Chapter()
             newChapter.title = title
             newChapter.desc = desc
@@ -2302,8 +2305,8 @@ class Splitter:
             newChapter.chType = 0
             file.novel.chapters[chapterId] = newChapter
 
-        def create_scene(sceneId, parent, splitCount, title, desc):
-            WARNING = '(!)'
+        def create_scene(sceneId: str, parent: str, splitCount: int, title: str, desc: str):
+            WARNING: str = '(!)'
 
             newScene = Scene()
             if title:

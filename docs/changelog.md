@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.7
+
+- Change the wording of the menu entry.
+
+Based on PyWriter v12.3.0
+
 ### v1.2.6
 
 - Fix a bug where an exception occurs when running the exporter with a new file.
