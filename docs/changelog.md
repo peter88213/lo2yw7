@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.8
+
+- Make it work on virtual file systems.
+
+Based on PyWriter v12.3.2
+
 ### v1.2.7
 
 - Change the wording of the menu entry.

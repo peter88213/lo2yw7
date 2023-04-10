@@ -1,6 +1,6 @@
 """Macros for formatting text. 
 
-Version 1.2.7
+Version 1.2.8
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
