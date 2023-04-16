@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.2.9\n"
-"POT-Creation-Date: 2023-04-15 21:03:49\n"
-"PO-Revision-Date: 2023-04-15 21:03:49\n"
+"Project-Id-Version: 1.2.10\n"
+"POT-Creation-Date: 2023-04-16 10:49:49\n"
+"PO-Revision-Date: 2023-04-16 10:49:50\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -105,6 +105,9 @@ msgstr "Bestehende Datei \"{}\" überschreiben?"
 
 msgid "Part descriptions"
 msgstr "Teilebeschreibungen"
+
+msgid "Scene"
+msgstr "Abschnitt"
 
 msgid "Scene descriptions"
 msgstr "Abschnittsbeschreibungen"

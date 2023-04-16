@@ -1,6 +1,6 @@
 """Convert odt/ods to yw7. 
 
-Version 1.2.9
+Version 1.2.10
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -2530,7 +2530,7 @@ class OdtRImport(OdtRFormatted):
                 self.novel.scenes[self._scId] = Scene()
                 self.novel.chapters[self._chId].srtScenes.append(self._scId)
                 self.novel.scenes[self._scId].status = '1'
-                self.novel.scenes[self._scId].title = f'Scene {self._scCount}'
+                self.novel.scenes[self._scId].title = f'{_("Scene")} {self._scCount}'
             try:
                 if attrs[0][0] == 'lang':
                     self._language = attrs[0][1]
