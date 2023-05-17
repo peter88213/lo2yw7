@@ -10,7 +10,7 @@ Haupt-Hilfeseite
 
 ### "Datei"-Menü
 
--   [Zu yWriter exportieren](#zu-ywriter-exportieren)
+-   [Zu yw7 exportieren](#zu-yw7-exportieren)
 
 ### "Format"-Menü
 
@@ -92,13 +92,13 @@ Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.
 
 ------------------------------------------------------------------------
 
-## Zu yWriter exportieren
+## Zu yw7 exportieren
 
-Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschrieben.
+Dadurch wird der Inhalt des Dokuments in die yw7-Projektdatei zurückgeschrieben.
 
--   Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yWriter-Formanicht ändern.
--   Das zu überschreibende yWriter 7 Projekt muss sich im selben Ordner befinden wie das Dokument.
--   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#ein-manuskript-zum-export-vorbereiten) oder eine [Gliederung](#eine-gliederung-zum-export-vorbereiten) zum Exportieren in ein neu zu erstellendes yWriter-Projekt. **Hinweis:** Bestehende  yWriter-Projekte werden nicht überschrieben.
+-   Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yw7-Format nicht ändern.
+-   Die zu überschreibende yw7-Projektdatei muss sich im selben Ordner befinden wie das Dokument.
+-   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#ein-manuskript-zum-export-vorbereiten) oder eine [Gliederung](#eine-gliederung-zum-export-vorbereiten) zum Exportieren in eine neu zu erstellende yw7-Projektdatei. **Hinweis:** Bestehende  yw7-Projektdateien werden nicht überschrieben.
 
 
 [Zum Seitenbeginn](#top)
@@ -117,7 +117,7 @@ Dadurch werden die dreizeiligen "\* \* \*"-Szenentrennlinien durch einzelne Leer
 
 Dadurch werden alle Absätze ausgewählt, die mit "&gt; " beginnen, und ihr Absatzstil wird in *Quotations* geändert.
 
-Hinweis: Beim Export in yWriter werden Absätze im Stil *Quotations* automatisch mit "&gt; " am Anfang markiert.
+Hinweis: Beim Export zu yw7 werden Absätze im Stil *Quotations* automatisch mit "&gt; " am Anfang markiert.
 
 [Zum Seitenbeginn](#top)
 
@@ -127,7 +127,7 @@ Hinweis: Beim Export in yWriter werden Absätze im Stil *Quotations* automatisch
 
 Dadurch werden alle Absätze, die mit "-" beginnen, ausgewählt und mit einem Listenabsatzstil versehen.
 
-Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen markiert.
+Hinweis: Beim Export zu yw7 werden Listen automatisch mit "-"-Listenstrichen markiert.
 
 [Zum Seitenbeginn](#top)
 
