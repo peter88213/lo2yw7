@@ -8,7 +8,7 @@
 
 - Fix a bug in the ODT parser where direct bold and italic formatting is
 not recognized.
-- Handle corrupt data in OdtRProof.
+- Improve error handling when exporting the "proof" document.
 
 Based on Pywriter v12.7.2
 
