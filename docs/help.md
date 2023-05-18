@@ -8,7 +8,7 @@
 
 ### "Files" menu
 
--   [Export to yw7](#export-to-yw7) 
+-   [Export to yWriter](#export-to-ywriter) 
 
 ### "Format" menu
 
@@ -88,19 +88,19 @@ An outline has at least one third level heading.
 
 ------------------------------------------------------------------------
 
-## Export to yw7
+## Export to yWriter
 
-This writes back the document's content to the yw7 project file.
+This writes back the document's content to the yWriter project file.
 
 -   Make sure not to change a generated document's file name before
-    writing back to yw7 format.
--   The yw7 project file to rewrite must exist in the same folder as
+    writing back to yWriter format.
+-   The yWriter 7 project to rewrite must exist in the same folder as
     the document.
 -   If the document's file name has no suffix, the document is
     considered a [Work in
     progress](#how-to-set-up-a-work-in-progress-for-export) or an
     [Outline](#how-to-set-up-an-outline-for-export) to be exported into
-    a newly created yw7 project file. **Note:** Existing yw7 project files
+    a newly created yWriter project. **Note:** Existing yWriter projects
     will not be overwritten.
 
 [Top of page](#top)
@@ -122,7 +122,7 @@ lines will be changed from  _Heading 4_  to  _Heading 5_.
 This will select all paragraphs that start with "> "
 and change their paragraph style to _Quotations_.
 
-Note: When exporting to yw7, _Quotations_ style paragraphs will
+Note: When exporting to yWriter, _Quotations_ style paragraphs will
 automatically marked with "> " at the beginning.
 
 [Top of page](#top)
@@ -134,7 +134,7 @@ automatically marked with "> " at the beginning.
 This will select all paragraphs that start with "- "
 and apply a list paragraph style.
 
-Note: When exporting to yw7, Lists will
+Note: When exporting to yWriter, Lists will
 automatically marked with "- " list strokes.
 
 [Top of page](#top)

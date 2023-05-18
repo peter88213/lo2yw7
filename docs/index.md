@@ -18,7 +18,7 @@ You can find more information on the [help pages](help).
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.2.10)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-1.2.10.oxt)
+[Download the latest release (version 1.2.11)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-1.2.11.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).

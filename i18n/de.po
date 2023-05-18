@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.2.10\n"
-"POT-Creation-Date: 2023-04-16 10:49:49\n"
-"PO-Revision-Date: 2023-04-16 10:49:50\n"
+"Project-Id-Version: 1.2.11\n"
+"POT-Creation-Date: 2023-05-18 11:31:57\n"
+"PO-Revision-Date: 2023-05-18 11:31:57\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -36,6 +36,9 @@ msgstr "Figurenbeschreibungen"
 
 msgid "Character list"
 msgstr "Figurenliste"
+
+msgid "Corrupt marker"
+msgstr "Beschädigte Markierung"
 
 msgid "Create a yWriter project file from {0}\nNew project: \"{1}\""
 msgstr "Erzeuge eine yWriter-Projektdatei aus {0}\nNeues Projekt: \"{1}\""

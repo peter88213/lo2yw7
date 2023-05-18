@@ -1,6 +1,6 @@
 """Convert odt/ods to yw7. 
 
-Version 1.2.10
+Version 1.2.11
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -750,9 +750,9 @@ class Yw7File(File):
             for fieldName in self.PRJ_KWVAR:
                 self.novel.kwVar[fieldName] = None
 
-            for prjFields in xmlProject.findall('Fields'):
+            for xmlProjectFields in xmlProject.findall('Fields'):
                 for fieldName in self.PRJ_KWVAR:
-                    field = prjFields.find(fieldName)
+                    field = xmlProjectFields.find(fieldName)
                     if field is not None:
                         self.novel.kwVar[fieldName] = field.text
 
@@ -788,9 +788,9 @@ class Yw7File(File):
                 for fieldName in self.LOC_KWVAR:
                     self.novel.locations[lcId].kwVar[fieldName] = None
 
-                for lcFields in xmlLocation.findall('Fields'):
+                for xmlLocationFields in xmlLocation.findall('Fields'):
                     for fieldName in self.LOC_KWVAR:
-                        field = lcFields.find(fieldName)
+                        field = xmlLocationFields.find(fieldName)
                         if field is not None:
                             self.novel.locations[lcId].kwVar[fieldName] = field.text
 
@@ -821,9 +821,9 @@ class Yw7File(File):
                 for fieldName in self.ITM_KWVAR:
                     self.novel.items[itId].kwVar[fieldName] = None
 
-                for itFields in xmlItem.findall('Fields'):
+                for xmlItemFields in xmlItem.findall('Fields'):
                     for fieldName in self.ITM_KWVAR:
-                        field = itFields.find(fieldName)
+                        field = xmlItemFields.find(fieldName)
                         if field is not None:
                             self.novel.items[itId].kwVar[fieldName] = field.text
 
@@ -871,9 +871,9 @@ class Yw7File(File):
                 for fieldName in self.CRT_KWVAR:
                     self.novel.characters[crId].kwVar[fieldName] = None
 
-                for crFields in xmlCharacter.findall('Fields'):
+                for xmlCharacterFields in xmlCharacter.findall('Fields'):
                     for fieldName in self.CRT_KWVAR:
-                        field = crFields.find(fieldName)
+                        field = xmlCharacterFields.find(fieldName)
                         if field is not None:
                             self.novel.characters[crId].kwVar[fieldName] = field.text
 
@@ -948,16 +948,16 @@ class Yw7File(File):
                 for fieldName in self.SCN_KWVAR:
                     self.novel.scenes[scId].kwVar[fieldName] = None
 
-                for scFields in xmlScene.findall('Fields'):
+                for xmlSceneFields in xmlScene.findall('Fields'):
                     for fieldName in self.SCN_KWVAR:
-                        field = scFields.find(fieldName)
+                        field = xmlSceneFields.find(fieldName)
                         if field is not None:
                             self.novel.scenes[scId].kwVar[fieldName] = field.text
 
-                    if scFields.find('Field_SceneType') is not None:
-                        if scFields.find('Field_SceneType').text == '1':
+                    if xmlSceneFields.find('Field_SceneType') is not None:
+                        if xmlSceneFields.find('Field_SceneType').text == '1':
                             self.novel.scenes[scId].scType = 1
-                        elif scFields.find('Field_SceneType').text == '2':
+                        elif xmlSceneFields.find('Field_SceneType').text == '2':
                             self.novel.scenes[scId].scType = 2
                 if xmlScene.find('Unused') is not None:
                     if self.novel.scenes[scId].scType == 0:
@@ -1137,21 +1137,21 @@ class Yw7File(File):
                 for fieldName in self.CHP_KWVAR:
                     self.novel.chapters[chId].kwVar[fieldName] = None
 
-                for chFields in xmlChapter.findall('Fields'):
-                    if chFields.find('Field_SuppressChapterTitle') is not None:
-                        if chFields.find('Field_SuppressChapterTitle').text == '1':
+                for xmlChapterFields in xmlChapter.findall('Fields'):
+                    if xmlChapterFields.find('Field_SuppressChapterTitle') is not None:
+                        if xmlChapterFields.find('Field_SuppressChapterTitle').text == '1':
                             self.novel.chapters[chId].suppressChapterTitle = True
                     self.novel.chapters[chId].isTrash = False
-                    if chFields.find('Field_IsTrash') is not None:
-                        if chFields.find('Field_IsTrash').text == '1':
+                    if xmlChapterFields.find('Field_IsTrash') is not None:
+                        if xmlChapterFields.find('Field_IsTrash').text == '1':
                             self.novel.chapters[chId].isTrash = True
                     self.novel.chapters[chId].suppressChapterBreak = False
-                    if chFields.find('Field_SuppressChapterBreak') is not None:
-                        if chFields.find('Field_SuppressChapterBreak').text == '1':
+                    if xmlChapterFields.find('Field_SuppressChapterBreak') is not None:
+                        if xmlChapterFields.find('Field_SuppressChapterBreak').text == '1':
                             self.novel.chapters[chId].suppressChapterBreak = True
 
                     for fieldName in self.CHP_KWVAR:
-                        field = chFields.find(fieldName)
+                        field = xmlChapterFields.find(fieldName)
                         if field is not None:
                             self.novel.chapters[chId].kwVar[fieldName] = field.text
 
@@ -1279,32 +1279,45 @@ class Yw7File(File):
             elif xmlScene.find('Unused') is not None:
                 xmlScene.remove(xmlScene.find('Unused'))
 
-            scFields = xmlScene.find('Fields')
-            if scFields is not None:
-                fieldScType = scFields.find('Field_SceneType')
+            xmlSceneFields = xmlScene.find('Fields')
+            if xmlSceneFields is not None:
+                fieldScType = xmlSceneFields.find('Field_SceneType')
                 if ySceneType is None:
                     if fieldScType is not None:
-                        scFields.remove(fieldScType)
+                        xmlSceneFields.remove(fieldScType)
                 else:
                     try:
                         fieldScType.text = ySceneType
                     except(AttributeError):
-                        ET.SubElement(scFields, 'Field_SceneType').text = ySceneType
+                        ET.SubElement(xmlSceneFields, 'Field_SceneType').text = ySceneType
             elif ySceneType is not None:
-                scFields = ET.SubElement(xmlScene, 'Fields')
-                ET.SubElement(scFields, 'Field_SceneType').text = ySceneType
+                xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
+                ET.SubElement(xmlSceneFields, 'Field_SceneType').text = ySceneType
+
+            if self.novel.scenes[scId].doNotExport is not None:
+                xmlExportCondSpecific = xmlScene.find('ExportCondSpecific')
+                xmlExportWhenRtf = xmlScene.find('ExportWhenRTF')
+                if self.novel.scenes[scId].doNotExport:
+                    if xmlExportCondSpecific is None:
+                        xmlExportCondSpecific = ET.SubElement(xmlScene, 'ExportCondSpecific')
+                    if xmlExportWhenRtf is not None:
+                        xmlScene.remove(xmlExportWhenRtf)
+                else:
+                    if xmlExportCondSpecific is not None:
+                        if xmlExportWhenRtf is None:
+                            ET.SubElement(xmlScene, 'ExportWhenRTF').text = '-1'
 
             for field in self.SCN_KWVAR:
                 if self.novel.scenes[scId].kwVar.get(field, None):
-                    if scFields is None:
-                        scFields = ET.SubElement(xmlScene, 'Fields')
+                    if xmlSceneFields is None:
+                        xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
                     try:
-                        scFields.find(field).text = self.novel.scenes[scId].kwVar[field]
+                        xmlSceneFields.find(field).text = self.novel.scenes[scId].kwVar[field]
                     except(AttributeError):
-                        ET.SubElement(scFields, field).text = self.novel.scenes[scId].kwVar[field]
-                elif scFields is not None:
+                        ET.SubElement(xmlSceneFields, field).text = self.novel.scenes[scId].kwVar[field]
+                elif xmlSceneFields is not None:
                     try:
-                        scFields.remove(scFields.find(field))
+                        xmlSceneFields.remove(xmlSceneFields.find(field))
                     except:
                         pass
 
@@ -1403,7 +1416,7 @@ class Yw7File(File):
                         except(AttributeError):
                             ET.SubElement(xmlScene, 'Day').text = prjScn.day
                     if prjScn.time is not None:
-                        hours, minutes, seconds = prjScn.time.split(':')
+                        hours, minutes, __ = prjScn.time.split(':')
                         try:
                             xmlScene.find('Hour').text = hours
                         except(AttributeError):
@@ -1533,56 +1546,56 @@ class Yw7File(File):
 
             i = set_element(xmlChapter, 'SortOrder', str(sortOrder), i)
 
-            chFields = xmlChapter.find('Fields')
+            xmlChapterFields = xmlChapter.find('Fields')
             if prjChp.suppressChapterTitle:
-                if chFields is None:
-                    chFields = ET.Element('Fields')
-                    xmlChapter.insert(i, chFields)
+                if xmlChapterFields is None:
+                    xmlChapterFields = ET.Element('Fields')
+                    xmlChapter.insert(i, xmlChapterFields)
                 try:
-                    chFields.find('Field_SuppressChapterTitle').text = '1'
+                    xmlChapterFields.find('Field_SuppressChapterTitle').text = '1'
                 except(AttributeError):
-                    ET.SubElement(chFields, 'Field_SuppressChapterTitle').text = '1'
-            elif chFields is not None:
-                if chFields.find('Field_SuppressChapterTitle') is not None:
-                    chFields.find('Field_SuppressChapterTitle').text = '0'
+                    ET.SubElement(xmlChapterFields, 'Field_SuppressChapterTitle').text = '1'
+            elif xmlChapterFields is not None:
+                if xmlChapterFields.find('Field_SuppressChapterTitle') is not None:
+                    xmlChapterFields.find('Field_SuppressChapterTitle').text = '0'
 
             if prjChp.suppressChapterBreak:
-                if chFields is None:
-                    chFields = ET.Element('Fields')
-                    xmlChapter.insert(i, chFields)
+                if xmlChapterFields is None:
+                    xmlChapterFields = ET.Element('Fields')
+                    xmlChapter.insert(i, xmlChapterFields)
                 try:
-                    chFields.find('Field_SuppressChapterBreak').text = '1'
+                    xmlChapterFields.find('Field_SuppressChapterBreak').text = '1'
                 except(AttributeError):
-                    ET.SubElement(chFields, 'Field_SuppressChapterBreak').text = '1'
-            elif chFields is not None:
-                if chFields.find('Field_SuppressChapterBreak') is not None:
-                    chFields.find('Field_SuppressChapterBreak').text = '0'
+                    ET.SubElement(xmlChapterFields, 'Field_SuppressChapterBreak').text = '1'
+            elif xmlChapterFields is not None:
+                if xmlChapterFields.find('Field_SuppressChapterBreak') is not None:
+                    xmlChapterFields.find('Field_SuppressChapterBreak').text = '0'
 
             if prjChp.isTrash:
-                if chFields is None:
-                    chFields = ET.Element('Fields')
-                    xmlChapter.insert(i, chFields)
+                if xmlChapterFields is None:
+                    xmlChapterFields = ET.Element('Fields')
+                    xmlChapter.insert(i, xmlChapterFields)
                 try:
-                    chFields.find('Field_IsTrash').text = '1'
+                    xmlChapterFields.find('Field_IsTrash').text = '1'
                 except(AttributeError):
-                    ET.SubElement(chFields, 'Field_IsTrash').text = '1'
+                    ET.SubElement(xmlChapterFields, 'Field_IsTrash').text = '1'
 
-            elif chFields is not None:
-                if chFields.find('Field_IsTrash') is not None:
-                    chFields.remove(chFields.find('Field_IsTrash'))
+            elif xmlChapterFields is not None:
+                if xmlChapterFields.find('Field_IsTrash') is not None:
+                    xmlChapterFields.remove(xmlChapterFields.find('Field_IsTrash'))
 
             for field in self.CHP_KWVAR:
                 if prjChp.kwVar.get(field, None):
-                    if chFields is None:
-                        chFields = ET.Element('Fields')
-                        xmlChapter.insert(i, chFields)
+                    if xmlChapterFields is None:
+                        xmlChapterFields = ET.Element('Fields')
+                        xmlChapter.insert(i, xmlChapterFields)
                     try:
-                        chFields.find(field).text = prjChp.kwVar[field]
+                        xmlChapterFields.find(field).text = prjChp.kwVar[field]
                     except(AttributeError):
-                        ET.SubElement(chFields, field).text = prjChp.kwVar[field]
-                elif chFields is not None:
+                        ET.SubElement(xmlChapterFields, field).text = prjChp.kwVar[field]
+                elif xmlChapterFields is not None:
                     try:
-                        chFields.remove(chFields.find(field))
+                        xmlChapterFields.remove(xmlChapterFields.find(field))
                     except:
                         pass
             if xmlChapter.find('Fields') is not None:
@@ -1630,38 +1643,38 @@ class Yw7File(File):
 
             ET.SubElement(xmlLoc, 'SortOrder').text = str(sortOrder)
 
-            lcFields = xmlLoc.find('Fields')
+            xmlLocationFields = xmlLoc.find('Fields')
             for field in self.LOC_KWVAR:
                 if self.novel.locations[lcId].kwVar.get(field, None):
-                    if lcFields is None:
-                        lcFields = ET.SubElement(xmlLoc, 'Fields')
+                    if xmlLocationFields is None:
+                        xmlLocationFields = ET.SubElement(xmlLoc, 'Fields')
                     try:
-                        lcFields.find(field).text = self.novel.xmlLocations[lcId].kwVar[field]
+                        xmlLocationFields.find(field).text = self.novel.locations[lcId].kwVar[field]
                     except(AttributeError):
-                        ET.SubElement(lcFields, field).text = self.novel.xmlLocations[lcId].kwVar[field]
-                elif lcFields is not None:
+                        ET.SubElement(xmlLocationFields, field).text = self.novel.locations[lcId].kwVar[field]
+                elif xmlLocationFields is not None:
                     try:
-                        lcFields.remove(lcFields.find(field))
+                        xmlLocationFields.remove(xmlLocationFields.find(field))
                     except:
                         pass
 
-        def build_prjNote_subtree(xmlPnt, prjPnt, sortOrder):
-            if prjPnt.title is not None:
-                ET.SubElement(xmlPnt, 'Title').text = prjPnt.title
+        def build_prjNote_subtree(xmlProjectnote, projectNote, sortOrder):
+            if projectNote.title is not None:
+                ET.SubElement(xmlProjectnote, 'Title').text = projectNote.title
 
-            if prjPnt.desc is not None:
-                ET.SubElement(xmlPnt, 'Desc').text = prjPnt.desc
+            if projectNote.desc is not None:
+                ET.SubElement(xmlProjectnote, 'Desc').text = projectNote.desc
 
-            ET.SubElement(xmlPnt, 'SortOrder').text = str(sortOrder)
+            ET.SubElement(xmlProjectnote, 'SortOrder').text = str(sortOrder)
 
         def add_projectvariable(title, desc, tags):
             pvId = create_id(prjVars)
             prjVars.append(pvId)
-            projectvar = ET.SubElement(projectvars, 'PROJECTVAR')
-            ET.SubElement(projectvar, 'ID').text = pvId
-            ET.SubElement(projectvar, 'Title').text = title
-            ET.SubElement(projectvar, 'Desc').text = desc
-            ET.SubElement(projectvar, 'Tags').text = tags
+            xmlProjectvar = ET.SubElement(xmlProjectvars, 'PROJECTVAR')
+            ET.SubElement(xmlProjectvar, 'ID').text = pvId
+            ET.SubElement(xmlProjectvar, 'Title').text = title
+            ET.SubElement(xmlProjectvar, 'Desc').text = desc
+            ET.SubElement(xmlProjectvar, 'Tags').text = tags
 
         def build_item_subtree(xmlItm, prjItm, sortOrder):
             if prjItm.title is not None:
@@ -1681,18 +1694,18 @@ class Yw7File(File):
 
             ET.SubElement(xmlItm, 'SortOrder').text = str(sortOrder)
 
-            itFields = xmlItm.find('Fields')
+            xmlItemFields = xmlItm.find('Fields')
             for field in self.ITM_KWVAR:
                 if self.novel.items[itId].kwVar.get(field, None):
-                    if itFields is None:
-                        itFields = ET.SubElement(xmlItm, 'Fields')
+                    if xmlItemFields is None:
+                        xmlItemFields = ET.SubElement(xmlItm, 'Fields')
                     try:
-                        itFields.find(field).text = self.novel.xmlItems[itId].kwVar[field]
+                        xmlItemFields.find(field).text = self.novel.items[itId].kwVar[field]
                     except(AttributeError):
-                        ET.SubElement(itFields, field).text = self.novel.xmlItems[itId].kwVar[field]
-                elif itFields is not None:
+                        ET.SubElement(xmlItemFields, field).text = self.novel.items[itId].kwVar[field]
+                elif xmlItemFields is not None:
                     try:
-                        itFields.remove(itFields.find(field))
+                        xmlItemFields.remove(xmlItemFields.find(field))
                     except:
                         pass
 
@@ -1729,18 +1742,18 @@ class Yw7File(File):
             if prjCrt.isMajor:
                 ET.SubElement(xmlCrt, 'Major').text = '-1'
 
-            crFields = xmlCrt.find('Fields')
+            xmlCharacterFields = xmlCrt.find('Fields')
             for field in self.CRT_KWVAR:
                 if self.novel.characters[crId].kwVar.get(field, None):
-                    if crFields is None:
-                        crFields = ET.SubElement(xmlCrt, 'Fields')
+                    if xmlCharacterFields is None:
+                        xmlCharacterFields = ET.SubElement(xmlCrt, 'Fields')
                     try:
-                        crFields.find(field).text = self.novel.xmlCharacters[crId].kwVar[field]
+                        xmlCharacterFields.find(field).text = self.novel.characters[crId].kwVar[field]
                     except(AttributeError):
-                        ET.SubElement(crFields, field).text = self.novel.xmlCharacters[crId].kwVar[field]
-                elif crFields is not None:
+                        ET.SubElement(xmlCharacterFields, field).text = self.novel.characters[crId].kwVar[field]
+                elif xmlCharacterFields is not None:
                     try:
-                        crFields.remove(crFields.find(field))
+                        xmlCharacterFields.remove(xmlCharacterFields.find(field))
                     except:
                         pass
 
@@ -1815,19 +1828,19 @@ class Yw7File(File):
             self.novel.kwVar['Field_LanguageCode'] = None
             self.novel.kwVar['Field_CountryCode'] = None
 
-            prjFields = xmlProject.find('Fields')
+            xmlProjectFields = xmlProject.find('Fields')
             for field in self.PRJ_KWVAR:
                 setting = self.novel.kwVar.get(field, None)
                 if setting:
-                    if prjFields is None:
-                        prjFields = ET.SubElement(xmlProject, 'Fields')
+                    if xmlProjectFields is None:
+                        xmlProjectFields = ET.SubElement(xmlProject, 'Fields')
                     try:
-                        prjFields.find(field).text = setting
+                        xmlProjectFields.find(field).text = setting
                     except(AttributeError):
-                        ET.SubElement(prjFields, field).text = setting
+                        ET.SubElement(xmlProjectFields, field).text = setting
                 else:
                     try:
-                        prjFields.remove(prjFields.find(field))
+                        xmlProjectFields.remove(xmlProjectFields.find(field))
                     except:
                         pass
 
@@ -1891,8 +1904,8 @@ class Yw7File(File):
 
 
         if xmlProjectnotes is not None:
-            for xmlPnt in xmlProjectnotes.findall('PROJECTNOTE'):
-                xmlProjectnotes.remove(xmlPnt)
+            for xmlProjectnote in xmlProjectnotes.findall('PROJECTNOTE'):
+                xmlProjectnotes.remove(xmlProjectnote)
             if not self.novel.srtPrjNotes:
                 root.remove(xmlProjectnotes)
         elif self.novel.srtPrjNotes:
@@ -1901,22 +1914,22 @@ class Yw7File(File):
             sortOrder = 0
             for pnId in self.novel.srtPrjNotes:
                 sortOrder += 1
-                xmlPnt = ET.SubElement(xmlProjectnotes, 'PROJECTNOTE')
-                ET.SubElement(xmlPnt, 'ID').text = pnId
-                build_prjNote_subtree(xmlPnt, self.novel.projectNotes[pnId], sortOrder)
+                xmlProjectnote = ET.SubElement(xmlProjectnotes, 'PROJECTNOTE')
+                ET.SubElement(xmlProjectnote, 'ID').text = pnId
+                build_prjNote_subtree(xmlProjectnote, self.novel.projectNotes[pnId], sortOrder)
 
+        xmlProjectvars = root.find('PROJECTVARS')
         if self.novel.languages or self.novel.languageCode or self.novel.countryCode:
             self.novel.check_locale()
-            projectvars = root.find('PROJECTVARS')
-            if projectvars is None:
-                projectvars = ET.SubElement(root, 'PROJECTVARS')
+            if xmlProjectvars is None:
+                xmlProjectvars = ET.SubElement(root, 'PROJECTVARS')
             prjVars = []
             languages = self.novel.languages.copy()
             hasLanguageCode = False
             hasCountryCode = False
-            for projectvar in projectvars.findall('PROJECTVAR'):
-                prjVars.append(projectvar.find('ID').text)
-                title = projectvar.find('Title').text
+            for xmlProjectvar in xmlProjectvars.findall('PROJECTVAR'):
+                prjVars.append(xmlProjectvar.find('ID').text)
+                title = xmlProjectvar.find('Title').text
 
                 if title.startswith('lang='):
                     try:
@@ -1926,11 +1939,11 @@ class Yw7File(File):
                         pass
 
                 elif title == 'Language':
-                    projectvar.find('Desc').text = self.novel.languageCode
+                    xmlProjectvar.find('Desc').text = self.novel.languageCode
                     hasLanguageCode = True
 
                 elif title == 'Country':
-                    projectvar.find('Desc').text = self.novel.countryCode
+                    xmlProjectvar.find('Desc').text = self.novel.countryCode
                     hasCountryCode = True
 
             if not hasLanguageCode:
@@ -2213,9 +2226,9 @@ class OdtParser(sax.ContentHandler):
             elif styleName == 'Quotations':
                 self._blockquoteTags.append(self._style)
         elif name == 'style:text-properties':
-            if xmlAttributes.get('style:font-style', None) == 'italic':
+            if xmlAttributes.get('fo:font-style', None) == 'italic':
                 self._emTags.append(self._style)
-            if xmlAttributes.get('style:font-weight', None) == 'bold':
+            if xmlAttributes.get('fo:font-weight', None) == 'bold':
                 self._strongTags.append(self._style)
             if xmlAttributes.get('fo:language', False):
                 lngCode = xmlAttributes['fo:language']
@@ -2716,27 +2729,30 @@ class OdtRProof(OdtRFormatted):
     SUFFIX = '_proof'
 
     def handle_data(self, data):
-        if self._skip_data:
-            self._skip_data = False
-        elif '[ScID' in data:
-            self._scId = re.search('[0-9]+', data).group()
-            if not self._scId in self.novel.scenes:
-                self.novel.scenes[self._scId] = Scene()
-                self.novel.chapters[self._chId].srtScenes.append(self._scId)
-            self._lines = []
-        elif '[/ScID' in data:
-            text = ''.join(self._lines)
-            self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
-            self._scId = None
-        elif '[ChID' in data:
-            self._chId = re.search('[0-9]+', data).group()
-            if not self._chId in self.novel.chapters:
-                self.novel.chapters[self._chId] = Chapter()
-                self.novel.srtChapters.append(self._chId)
-        elif '[/ChID' in data:
-            self._chId = None
-        elif self._scId is not None:
-            self._lines.append(data)
+        try:
+            if self._skip_data:
+                self._skip_data = False
+            elif '[ScID' in data:
+                self._scId = re.search('[0-9]+', data).group()
+                if not self._scId in self.novel.scenes:
+                    self.novel.scenes[self._scId] = Scene()
+                    self.novel.chapters[self._chId].srtScenes.append(self._scId)
+                self._lines = []
+            elif '[/ScID' in data:
+                text = ''.join(self._lines)
+                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+                self._scId = None
+            elif '[ChID' in data:
+                self._chId = re.search('[0-9]+', data).group()
+                if not self._chId in self.novel.chapters:
+                    self.novel.chapters[self._chId] = Chapter()
+                    self.novel.srtChapters.append(self._chId)
+            elif '[/ChID' in data:
+                self._chId = None
+            elif self._scId is not None:
+                self._lines.append(data)
+        except:
+            raise Error(f'{_("Corrupt marker")}: "{data}"')
 
     def handle_endtag(self, tag):
         if tag in ['p', 'h2', 'h1', 'blockquote']:

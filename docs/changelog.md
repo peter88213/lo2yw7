@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### v1.2.11
+
+- Fix a bug in the ODT parser where direct bold and italic formatting is
+not recognized.
+- Handle corrupt data in OdtRProof.
+
+Based on Pywriter v12.7.2
+
 ### v1.2.10
 
 - When creating a new scene on yw7 export, localize the default title.
