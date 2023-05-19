@@ -1,6 +1,6 @@
 """Convert odt/ods to yw7. 
 
-Version 1.2.11
+Version 1.2.12
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/lo2yw7
@@ -2140,6 +2140,8 @@ class OdtParser(sax.ContentHandler):
     def endElement(self, name):
         if name == 'text:p':
             if self._commentParagraphCount is None:
+                while self._span:
+                    self.handle_endtag(self._span.pop())
                 if self._blockquote:
                     self.handle_endtag('blockquote')
                     self._blockquote = False
@@ -2172,10 +2174,9 @@ class OdtParser(sax.ContentHandler):
             xmlAttributes[attrKey] = attrValue
         style = xmlAttributes.get('text:style-name', '')
         if name == 'text:p':
+            param = [()]
             if style in self._languageTags:
                 param = [('lang', self._languageTags[style])]
-            else:
-                param = [()]
             if self._commentParagraphCount is not None:
                 self._commentParagraphCount += 1
             elif style in self._blockquoteTags:
@@ -2194,14 +2195,20 @@ class OdtParser(sax.ContentHandler):
             else:
                 self.handle_starttag('p', param)
                 self._paragraph = True
+            if style in self._emTags:
+                self._span.append('em')
+                self.handle_starttag('em', [()])
+            if style in self._strongTags:
+                self._span.append('strong')
+                self.handle_starttag('strong', [()])
         elif name == 'text:span':
             if style in self._emTags:
                 self._span.append('em')
                 self.handle_starttag('em', [()])
-            elif style in self._strongTags:
+            if style in self._strongTags:
                 self._span.append('strong')
                 self.handle_starttag('strong', [()])
-            elif style in self._languageTags:
+            if style in self._languageTags:
                 self._span.append('lang')
                 self.handle_starttag('lang', [('lang', self._languageTags[style])])
         elif name == 'text:section':
@@ -2742,13 +2749,6 @@ class OdtRProof(OdtRFormatted):
                 text = ''.join(self._lines)
                 self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
                 self._scId = None
-            elif '[ChID' in data:
-                self._chId = re.search('[0-9]+', data).group()
-                if not self._chId in self.novel.chapters:
-                    self.novel.chapters[self._chId] = Chapter()
-                    self.novel.srtChapters.append(self._chId)
-            elif '[/ChID' in data:
-                self._chId = None
             elif self._scId is not None:
                 self._lines.append(data)
         except:

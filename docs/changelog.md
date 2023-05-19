@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.12
+
+- Fix a bug where direct formatting of whole paragraphs is not considered when converting from ODT to yw7.
+
+Based on PyWriter v12.8.5
+
 ### v1.2.11
 
 - Fix a bug in the ODT parser where direct bold and italic formatting is
