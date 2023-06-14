@@ -16,7 +16,13 @@ You can find more information on the [help pages](help).
 
 **Please note:** *This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/oo2yw7).*
 
-## Download and install {#download}
+## Download and install
+
+### Please note
+
+**Developing of this extension is discontinued.** You may wish to install [yw-cnv](https://peter88213.github.io/yw-cnv) instead.
+
+
 
 [Download the latest release (version 1.3.1)](https://raw.githubusercontent.com/peter88213/lo2yw7/main/dist/lo2yw7-L-1.3.1.oxt)
 
