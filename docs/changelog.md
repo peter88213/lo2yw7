@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.3.1
+
+- Fix a bug where the scene content gets lost when splitting a scene at an appended chapter heading.
+
+Based on PyWriter v12.13.2
+
 ### v1.3.0
 
 - Read ODT documents without meta.xml as created with FreeMind.
